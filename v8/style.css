@@ -1,0 +1,240 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0a0a;
+    color: #ffffff;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+#splash {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 0.5s ease;
+}
+
+#splash.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.line-container {
+    position: relative;
+    width: 200px; height: 2px;
+    margin-bottom: 30px;
+}
+
+.horizon-line {
+    position: absolute;
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    top: 50%; transform: translateY(-50%);
+}
+
+.tilt-line {
+    position: absolute;
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.8));
+    top: 50%;
+    transform-origin: left center;
+    transform: translateY(-50%) rotate(0deg);
+    opacity: 0;
+}
+
+.tilt-line.animate {
+    animation: tiltUp 1s ease-out forwards;
+}
+
+@keyframes tiltUp {
+    0% { transform: translateY(-50%) rotate(0deg); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(-50%) rotate(-5deg); opacity: 1; }
+}
+
+.brand-name {
+    font-size: 32px; font-weight: 300;
+    letter-spacing: 8px;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.8s ease 0.8s;
+}
+
+.brand-name.show { opacity: 1; transform: translateY(0); }
+
+.tagline {
+    font-size: 14px; color: rgba(255,255,255,0.5);
+    margin-top: 15px; opacity: 0;
+    transition: opacity 0.8s ease 1.2s;
+}
+
+.tagline.show { opacity: 1; }
+
+#main {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; padding: 20px;
+    opacity: 0; transition: opacity 0.5s ease;
+}
+
+#main.show { display: flex; opacity: 1; }
+
+.main-button {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.main-button:hover { transform: scale(1.05); }
+.main-button:active { transform: scale(0.95); }
+
+.main-button svg {
+    width: 40px; height: 40px;
+    fill: none; stroke: rgba(255,255,255,0.7);
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+#card-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(0,0,0,0.9);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease; z-index: 50;
+}
+
+#card-container.show { opacity: 1; pointer-events: auto; }
+
+.card {
+    width: 90%; max-width: 350px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px; padding: 40px 30px;
+    text-align: center;
+    transform: scale(0.8) rotateY(90deg);
+    transition: transform 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+#card-container.show .card { transform: scale(1) rotateY(0deg); }
+
+.card-category {
+    font-size: 12px; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.card-content {
+    font-size: 18px; line-height: 1.8;
+    color: rgba(255,255,255,0.9); margin-bottom: 30px;
+}
+
+.card-actions { display: flex; gap: 15px; justify-content: center; }
+
+.card-btn {
+    padding: 12px 24px; border-radius: 25px;
+    font-size: 14px; cursor: pointer;
+    transition: all 0.3s ease; border: none;
+}
+
+.card-btn.primary { background: rgba(255,255,255,0.1); color: white; }
+.card-btn.primary:hover { background: rgba(255,255,255,0.2); }
+.card-btn.secondary { background: transparent; color: rgba(255,255,255,0.5); }
+.card-btn.secondary:hover { color: rgba(255,255,255,0.7); }
+
+#complete-feedback {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(0,0,0,0.95);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease; z-index: 60;
+}
+
+#complete-feedback.show { opacity: 1; pointer-events: auto; }
+
+.feedback-content {
+    text-align: center;
+    transform: translateY(20px);
+    transition: transform 0.5s ease;
+}
+
+#complete-feedback.show .feedback-content { transform: translateY(0); }
+
+.feedback-icon {
+    width: 60px; height: 60px;
+    margin: 0 auto 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex; justify-content: center; align-items: center;
+}
+
+.feedback-icon svg {
+    width: 30px; height: 30px;
+    stroke: rgba(255,255,255,0.8); fill: none; stroke-width: 2;
+}
+
+.feedback-text {
+    font-size: 16px; color: rgba(255,255,255,0.7); line-height: 1.6;
+}
+
+#detail-panel {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(0,0,0,0.95);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease; z-index: 55;
+}
+
+#detail-panel.show { opacity: 1; pointer-events: auto; }
+
+.detail-content {
+    width: 85%; max-width: 320px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 16px; padding: 24px;
+}
+
+.detail-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; font-size: 14px; color: rgba(255,255,255,0.5);
+}
+
+#close-detail {
+    background: none; border: none;
+    color: rgba(255,255,255,0.5); cursor: pointer; font-size: 14px;
+}
+
+#detail-list {
+    list-style: none; padding: 0;
+}
+
+#detail-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 15px; color: rgba(255,255,255,0.8);
+    line-height: 1.5;
+}
+
+#detail-list li:last-child { border-bottom: none; }
+
+#detail-list li::before {
+    content: '·';
+    margin-right: 10px;
+    color: rgba(255,255,255,0.3);
+}
