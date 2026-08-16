@@ -1,7 +1,7 @@
 var BLINDS = (function() {
     var MAX_DIST = 250;
     var THRESHOLD = 0.5;
-    var SETTLE_MS = 450;
+    var SETTLE_MS = 340;
 
     var progress = 0;
     var tracking = false;
@@ -25,8 +25,13 @@ var BLINDS = (function() {
         return false;
     }
 
+    function isEnteringOrOpen() {
+        return document.body.classList.contains('side-quest-entering') ||
+               document.body.classList.contains('side-quest-open');
+    }
+
     function onTouchStart(e) {
-        if (settling || isOverlayOpen()) return;
+        if (settling || isEnteringOrOpen() || isOverlayOpen()) return;
         tracking = true;
         startY = e.touches[0].clientY;
         document.body.classList.remove('blind-settling');
@@ -44,17 +49,6 @@ var BLINDS = (function() {
         setProgress(clamp(deltaY / MAX_DIST, 0, 1));
     }
 
-    function settleTo(target) {
-        settling = true;
-        document.body.classList.add('blind-settling');
-        setProgress(target);
-        setTimeout(function() {
-            document.body.classList.remove('blind-settling');
-            settling = false;
-            if (target >= 1) navigateToSideQuest();
-        }, SETTLE_MS);
-    }
-
     function onTouchEnd() {
         if (!tracking) return;
         tracking = false;
@@ -65,20 +59,45 @@ var BLINDS = (function() {
         }
     }
 
-    function navigateToSideQuest() {
+    function settleTo(target) {
+        settling = true;
+        document.body.classList.add('blind-settling');
+        if (target >= 1) {
+            document.body.classList.add('side-quest-entering');
+        }
+        setProgress(target);
+        setTimeout(function() {
+            document.body.classList.remove('blind-settling');
+            settling = false;
+            if (target >= 1) {
+                enterSideQuest();
+            }
+        }, SETTLE_MS);
+    }
+
+    function enterSideQuest() {
+        document.body.classList.remove('side-quest-entering');
         document.body.classList.add('side-quest-open');
         if (window.onSideQuestOpen) window.onSideQuestOpen();
     }
 
+    function navigateToSideQuest() {
+        if (isEnteringOrOpen()) return;
+        settleTo(1);
+    }
+
     function navigateToMainQuest() {
-        document.body.classList.remove('side-quest-open');
+        var body = document.body;
+        if (body.classList.contains('side-quest-exiting')) return;
+        if (!body.classList.contains('side-quest-open')) return;
         settling = true;
-        document.body.classList.add('blind-settling');
+        body.classList.remove('side-quest-open');
+        body.classList.add('side-quest-exiting', 'blind-settling');
         setProgress(0);
         setTimeout(function() {
-            document.body.classList.remove('blind-settling');
+            body.classList.remove('side-quest-exiting', 'blind-settling');
             settling = false;
-        }, SETTLE_MS);
+        }, SETTLE_MS + 60);
     }
 
     function init() {
