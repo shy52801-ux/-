@@ -1,4 +1,4 @@
-const CACHE_NAME = 'weiyang-v3';
+const CACHE_NAME = 'weiyang-v4';
 const urlsToCache = [
     './',
     './index.html',
@@ -6,6 +6,8 @@ const urlsToCache = [
     './data.js',
     './app.js',
     './manifest.json',
+    './gesture-blinds.css',
+    './gesture-blinds.js',
     './icon-192.png',
     './icon-512.png'
 ];

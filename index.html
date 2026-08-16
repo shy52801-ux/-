@@ -11,6 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="gesture-blinds.css">
 </head>
 <body>
     <div id="splash">
@@ -48,6 +49,20 @@
         </button>
         <button class="history-link" id="history-link">记录</button>
     </div>
+
+    <div id="side-quest">
+        <div class="sq-content">
+            <div class="sq-title">支线世界</div>
+            <div class="sq-sub">上滑拉开百叶窗，这里是另一片光</div>
+            <button class="sq-back" id="sq-back">回到主线</button>
+        </div>
+    </div>
+
+    <div id="blind">
+        <div id="blind-glow"></div>
+    </div>
+
+    <div class="bind-hint">上滑 进入支线</div>
 
     <div id="card-container">
         <div class="card">
@@ -113,6 +128,7 @@
 
     <script src="data.js"></script>
     <script src="app.js"></script>
+    <script src="gesture-blinds.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');

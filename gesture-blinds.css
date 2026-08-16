@@ -1,0 +1,117 @@
+:root {
+    --open-progress: 0;
+}
+
+#main {
+    position: relative;
+    z-index: 3;
+}
+
+#side-quest {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    background:
+        radial-gradient(circle at 50% 120%, rgba(255, 214, 150, 0.9) 0%, rgba(255, 179, 102, 0.35) 45%, transparent 70%),
+        linear-gradient(180deg, #241e14 0%, #3a2c18 55%, #5a3d1c 100%);
+    pointer-events: none;
+}
+
+#blind {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: calc(100% - var(--open-progress) * 100%);
+    background: #0a0b0e;
+    z-index: 2;
+}
+
+#blind-glow {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    height: calc(40px + var(--open-progress) * 220px);
+    background: linear-gradient(to top, rgba(255, 214, 150, 0.55), rgba(255, 214, 150, 0.18) 45%, transparent);
+    opacity: var(--open-progress);
+    pointer-events: none;
+}
+
+body.blind-settling #blind {
+    transition: height 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+body.blind-settling #blind-glow {
+    transition: height 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.42s ease;
+}
+
+.sq-content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: var(--open-progress);
+}
+
+body.side-quest-open #side-quest {
+    pointer-events: auto;
+}
+
+body.side-quest-open #blind {
+    display: none;
+}
+
+body.side-quest-open #main {
+    display: none;
+}
+
+.sq-title {
+    font-family: 'Noto Serif CJK SC', serif;
+    font-size: 26px;
+    letter-spacing: 8px;
+    color: #ffe9c9;
+    margin-bottom: 14px;
+}
+
+.sq-sub {
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: rgba(255, 233, 201, 0.55);
+    margin-bottom: 44px;
+}
+
+.sq-back {
+    background: none;
+    border: 1px solid rgba(255, 233, 201, 0.35);
+    border-radius: 25px;
+    color: #ffe9c9;
+    font-size: 14px;
+    letter-spacing: 3px;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sq-back:hover {
+    background: rgba(255, 233, 201, 0.12);
+    border-color: rgba(255, 233, 201, 0.6);
+}
+
+.bind-hint {
+    position: fixed;
+    right: 16px;
+    bottom: 14px;
+    z-index: 40;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #3f4249;
+    transition: opacity 0.3s ease;
+}
+
+body.side-quest-open .bind-hint,
+body.hidden .bind-hint {
+    opacity: 0;
+}
