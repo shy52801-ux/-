@@ -2,7 +2,7 @@
     "name": "微仰",
     "short_name": "微仰",
     "description": "一个点一下就能获得一件小事的极简工具",
-    "start_url": "./",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#0a0a0a",
     "theme_color": "#0a0a0a",

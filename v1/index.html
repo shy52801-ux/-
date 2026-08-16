@@ -9,31 +9,15 @@
     <meta name="theme-color" content="#0a0a0a">
     <title>微仰</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-180.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="splash">
-        <svg class="brand-line" viewBox="0 0 320 160" width="240" height="120">
-            <defs>
-                <linearGradient id="lineGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#4a4c52"/>
-                    <stop offset="55%" stop-color="#c9cbd1"/>
-                    <stop offset="100%" stop-color="#ffffff"/>
-                </linearGradient>
-                <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
-                    <feGaussianBlur stdDeviation="3" result="blur"/>
-                    <feMerge>
-                        <feMergeNode in="blur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                </filter>
-            </defs>
-            <path id="riseLine" d="M 30 120 C 110 112, 200 96, 270 46"
-                  fill="none" stroke="url(#lineGrad)" stroke-width="4"
-                  stroke-linecap="round" filter="url(#softGlow)"/>
-            <circle id="riseDot" cx="270" cy="46" r="7" fill="#ffffff" filter="url(#softGlow)"/>
-        </svg>
+        <div class="line-container">
+            <div class="horizon-line"></div>
+            <div class="tilt-line" id="tilt-line"></div>
+        </div>
         <div class="brand-name" id="brand-name">微仰</div>
         <div class="tagline" id="tagline">把视线，往上抬一点</div>
     </div>
@@ -41,22 +25,15 @@
     <div id="main">
         <button class="main-button" id="main-btn">
             <svg viewBox="0 0 100 40">
-                <path d="M8 32 C35 30 65 24 90 10" fill="none"
-                      stroke="rgba(255,255,255,0.75)" stroke-width="2.4" stroke-linecap="round"/>
-                <circle cx="90" cy="10" r="3.2" fill="#ffffff"/>
+                <line x1="5" y1="30" x2="95" y2="15" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
         </button>
-        <button class="history-link" id="history-link">记录</button>
     </div>
 
     <div id="card-container">
         <div class="card">
             <div class="card-category" id="card-category"></div>
             <div class="card-content" id="card-content"></div>
-            <div id="card-details" style="display:none">
-                <div class="card-details-title">具体步骤</div>
-                <ol class="card-details-list" id="card-details-list"></ol>
-            </div>
             <div class="card-actions">
                 <button class="card-btn secondary" id="detail-btn">详情</button>
                 <button class="card-btn secondary" id="refresh-btn">换一个</button>
@@ -86,26 +63,11 @@
         </div>
     </div>
 
-    <div id="history-page">
-        <div class="history-header">
-            <button id="history-back" class="history-back">返回</button>
-            <span class="history-title">记录</span>
-            <span class="history-placeholder"></span>
-        </div>
-        <div class="week-header">
-            <button id="prev-week" class="week-nav">‹</button>
-            <span class="week-range" id="week-range"></span>
-            <button id="next-week" class="week-nav">›</button>
-        </div>
-        <div class="week-grid" id="week-grid"></div>
-        <div class="day-records" id="day-records"></div>
-    </div>
-
     <script src="data.js"></script>
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('/sw.js');
         }
     </script>
 </body>

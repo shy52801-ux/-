@@ -1,13 +1,10 @@
-const CACHE_NAME = 'weiyang-v2';
+const CACHE_NAME = 'weiyang-v1';
 const urlsToCache = [
-    './',
-    './index.html',
-    './style.css',
-    './data.js',
-    './app.js',
-    './manifest.json',
-    './icon-192.png',
-    './icon-512.png'
+    '/',
+    '/index.html',
+    '/style.css',
+    '/data.js',
+    '/app.js'
 ];
 
 self.addEventListener('install', event => {
