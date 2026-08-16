@@ -1,6 +1,10 @@
 var lastCategory = '';
 var HISTORY_KEY = 'wy_history';
 var HISTORY_DAYS = 30;
+var QUESTS_KEY = 'wy_quests';
+var QUESTS_DONE_KEY = 'wy_quests_done';
+var SETTINGS_KEY = 'wy_settings';
+var NUDGE_KEY = 'wy_nudge';
 
 var currentWeekStart = getWeekStart(new Date());
 var selectedDateKey = formatDateKey(new Date());
@@ -240,8 +244,21 @@ function renderWeek() {
 
 function applyView(view) {
     currentView = view;
-    document.getElementById('history-page').classList.toggle('show', view === 'history');
-    document.getElementById('history-day-page').classList.toggle('show', view === 'history-day');
+    var showMap = {
+        'home': 'main',
+        'history': 'history-page',
+        'history-day': 'history-day-page',
+        'quests': 'quests-page',
+        'picker': 'quest-picker-page',
+        'settings': 'settings-page'
+    };
+    for (var key in showMap) {
+        var el = document.getElementById(showMap[key]);
+        if (!el) continue;
+        var ref = key;
+        if (key === 'home') el.classList.toggle('show', currentView === 'home');
+        else el.classList.toggle('show', currentView === ref);
+    }
 }
 
 function navigateTo(view) {
@@ -298,12 +315,310 @@ function hideDayRecords() {
     navigateTo('history');
 }
 
+function getSelectedQuests() {
+    try {
+        var raw = localStorage.getItem(QUESTS_KEY);
+        if (!raw) return [];
+        var ids = JSON.parse(raw);
+        return MAIN_QUESTS.filter(function(q) {
+            return ids.indexOf(q.id) >= 0;
+        });
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveSelectedQuests(quests) {
+    var ids = quests.map(function(q) { return q.id; });
+    try { localStorage.setItem(QUESTS_KEY, JSON.stringify(ids)); } catch (e) {}
+}
+
+function isQuestDoneToday(questId) {
+    var todayKey = formatDateKey(new Date());
+    try {
+        var raw = localStorage.getItem(QUESTS_DONE_KEY);
+        if (!raw) return false;
+        var map = JSON.parse(raw);
+        var list = map[todayKey] || [];
+        return list.indexOf(questId) >= 0;
+    } catch (e) {
+        return false;
+    }
+}
+
+function markQuestDone(questId) {
+    var todayKey = formatDateKey(new Date());
+    var map = {};
+    try { map = JSON.parse(localStorage.getItem(QUESTS_DONE_KEY) || '{}') || {}; } catch (e) {}
+    var list = map[todayKey] || [];
+    if (list.indexOf(questId) < 0) list.push(questId);
+    map[todayKey] = list;
+    try { localStorage.setItem(QUESTS_DONE_KEY, JSON.stringify(map)); } catch (e) {}
+}
+
+function addMainQuestDone(quest) {
+    addToHistory({
+        content: quest.name + '：' + quest.today,
+        category: '主线·' + quest.group,
+        ts: Date.now()
+    });
+}
+
+function renderQuests() {
+    var list = document.getElementById('quests-list');
+    var quests = getSelectedQuests();
+    if (quests.length === 0) {
+        list.innerHTML = '<div class="empty-hint">还没有主线。<br>选一件真正想完成的事。</div>';
+        return;
+    }
+    var html = '';
+    for (var i = 0; i < quests.length; i++) {
+        var q = quests[i];
+        var done = isQuestDoneToday(q.id);
+        var doneMark = done ? '<span class="quest-done-mark">✓ 今天已完成</span>' : '';
+        var btn = done
+            ? '<button class="quest-done-btn done" disabled>做完了</button>'
+            : '<button class="quest-done-btn" data-quest="' + q.id + '">做完了</button>';
+        html += '<div class="quest-item">' +
+            '<div class="quest-head"><span class="quest-name">' + q.name + '</span>' +
+            '<span class="quest-stage">' + q.stage + '</span></div>' +
+            '<div class="quest-week">本周：' + q.weekGoal + '</div>' +
+            '<div class="quest-today">下一步：' + q.today + '</div>' +
+            '<div class="quest-foot">' + doneMark + btn + '</div>' +
+            '</div>';
+    }
+    list.innerHTML = html;
+
+    var btns = list.querySelectorAll('.quest-done-btn');
+    for (var j = 0; j < btns.length; j++) {
+        btns[j].addEventListener('click', function() {
+            var id = this.getAttribute('data-quest');
+            var quest = null;
+            for (var k = 0; k < MAIN_QUESTS.length; k++) {
+                if (MAIN_QUESTS[k].id === id) quest = MAIN_QUESTS[k];
+            }
+            if (quest) {
+                addMainQuestDone(quest);
+                markQuestDone(id);
+                renderQuests();
+                showFinalFeedback();
+            }
+        });
+    }
+}
+
+function showQuests() {
+    renderQuests();
+    navigateTo('quests');
+}
+
+function hideQuests() {
+    applyView('home');
+    try { history.pushState({ view: 'home' }, ''); } catch (e) {}
+}
+
+function renderPicker() {
+    var container = document.getElementById('picker-groups');
+    var selected = getSelectedQuests();
+    var groups = {};
+    for (var i = 0; i < MAIN_QUESTS.length; i++) {
+        var q = MAIN_QUESTS[i];
+        if (!groups[q.group]) groups[q.group] = [];
+        groups[q.group].push(q);
+    }
+    var html = '';
+    for (var g in groups) {
+        html += '<div class="picker-group"><div class="picker-group-title">' + g + '</div>';
+        for (var j = 0; j < groups[g].length; j++) {
+            var q = groups[g][j];
+            var isSel = selected.some(function(s) { return s.id === q.id; });
+            html += '<button class="picker-item' + (isSel ? ' selected' : '') + '" data-quest="' + q.id + '">' +
+                '<span class="picker-name">' + q.name + '</span>' +
+                '<span class="picker-mark">' + (isSel ? '✓' : '') + '</span></button>';
+        }
+        html += '</div>';
+    }
+    container.innerHTML = html;
+
+    var items = container.querySelectorAll('.picker-item');
+    for (var k = 0; k < items.length; k++) {
+        items[k].addEventListener('click', function() {
+            var id = this.getAttribute('data-quest');
+            var q = null;
+            for (var m = 0; m < MAIN_QUESTS.length; m++) {
+                if (MAIN_QUESTS[m].id === id) q = MAIN_QUESTS[m];
+            }
+            if (!q) return;
+            var cur = getSelectedQuests();
+            var idx = -1;
+            for (var n = 0; n < cur.length; n++) {
+                if (cur[n].id === q.id) idx = n;
+            }
+            if (idx >= 0) {
+                cur.splice(idx, 1);
+            } else {
+                if (cur.length >= 3) {
+                    showFinalFeedback();
+                    return;
+                }
+                cur.push(q);
+            }
+            saveSelectedQuests(cur);
+            renderPicker();
+        });
+    }
+}
+
+function showPicker() {
+    renderPicker();
+    navigateTo('picker');
+}
+
+function hidePicker() {
+    renderQuests();
+    navigateTo('quests');
+}
+
+function renderSettings() {
+    var s = getSettings();
+    document.getElementById('morning-enabled').checked = s.morning.enabled;
+    document.getElementById('evening-enabled').checked = s.evening.enabled;
+}
+
+function getSettings() {
+    var def = {
+        morning: { enabled: false, time: '08:00' },
+        evening: { enabled: true, time: '21:30' }
+    };
+    try {
+        var raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return def;
+        var s = JSON.parse(raw);
+        if (!s.morning) s.morning = def.morning;
+        if (!s.evening) s.evening = def.evening;
+        return s;
+    } catch (e) {
+        return def;
+    }
+}
+
+function saveSettings(s) {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch (e) {}
+}
+
+function showSettings() {
+    renderSettings();
+    navigateTo('settings');
+}
+
+function hideSettings() {
+    applyView('home');
+    try { history.pushState({ view: 'home' }, ''); } catch (e) {}
+}
+
+function getCurrentMinutes() {
+    var now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
+
+function isEveningNudgeTime(settings) {
+    if (!settings.evening.enabled) return false;
+    var parts = settings.evening.time.split(':');
+    var target = Number(parts[0]) * 60 + Number(parts[1]);
+    return getCurrentMinutes() >= target;
+}
+
+function nudgeShownToday() {
+    var todayKey = formatDateKey(new Date());
+    try {
+        var raw = localStorage.getItem(NUDGE_KEY);
+        if (!raw) return true;
+        var map = JSON.parse(raw);
+        return map[todayKey] === true;
+    } catch (e) {
+        return true;
+    }
+}
+
+function markNudgeShown() {
+    var todayKey = formatDateKey(new Date());
+    var map = {};
+    try { map = JSON.parse(localStorage.getItem(NUDGE_KEY) || '{}') || {}; } catch (e) {}
+    map[todayKey] = true;
+    try { localStorage.setItem(NUDGE_KEY, JSON.stringify(map)); } catch (e) {}
+}
+
+function checkNudge() {
+    var settings = getSettings();
+    if (!isEveningNudgeTime(settings)) return;
+    if (nudgeShownToday()) return;
+    document.getElementById('evening-nudge').classList.add('show');
+}
+
+function hideNudge() {
+    document.getElementById('evening-nudge').classList.remove('show');
+    markNudgeShown();
+}
+
+var sqCurrentRec = null;
+
+function showSideQuestCard() {
+    var rec = getRecommendation();
+    sqCurrentRec = rec;
+    document.getElementById('sq-cat').textContent = rec.category;
+    document.getElementById('sq-task').textContent = rec.content;
+    document.getElementById('sq-details').style.display = 'none';
+
+    var refreshBtn = document.getElementById('sq-refresh');
+    var doBtn = document.getElementById('sq-do');
+    var skipBtn = document.getElementById('sq-skip');
+    var confirmBtn = document.getElementById('sq-confirm');
+
+    refreshBtn.style.display = 'block';
+    doBtn.style.display = 'block';
+    skipBtn.style.display = 'none';
+    confirmBtn.style.display = 'none';
+
+    refreshBtn.onclick = function() { showSideQuestCard(); };
+    doBtn.onclick = function() {
+        renderSqInlineDetails(rec.details);
+        refreshBtn.style.display = 'none';
+        doBtn.style.display = 'none';
+        skipBtn.style.display = 'block';
+        confirmBtn.style.display = 'block';
+    };
+    skipBtn.onclick = function() { showSideQuestCard(); };
+    confirmBtn.onclick = function() {
+        addToHistory(rec);
+        document.getElementById('sq-details').style.display = 'none';
+        skipBtn.style.display = 'none';
+        confirmBtn.style.display = 'none';
+        document.getElementById('sq-task').textContent = '这一刻 你选择了自己。';
+        setTimeout(showSideQuestCard, 1400);
+    };
+}
+
+function renderSqInlineDetails(details) {
+    var box = document.getElementById('sq-details');
+    var list = document.getElementById('sq-details-list');
+    if (!details || details.length === 0) {
+        box.style.display = 'none';
+        return;
+    }
+    list.innerHTML = details.map(function(d) { return '<li>' + d + '</li>'; }).join('');
+    box.style.display = 'block';
+}
+
 window.addEventListener('popstate', function(e) {
     var target = (e.state && e.state.view) || 'home';
     if (target === 'history-day') {
         renderDayRecords();
     } else if (target === 'history') {
         renderWeek();
+    } else if (target === 'quests') {
+        renderQuests();
+    } else if (target === 'picker') {
+        renderPicker();
     }
     applyView(target);
 });
@@ -337,9 +652,13 @@ window.addEventListener('DOMContentLoaded', function() {
         document.getElementById('main').classList.add('show');
     }, 300 + 1100 + 1400);
 
-    document.getElementById('main-btn').addEventListener('click', showCard);
+    document.getElementById('quests-entry').addEventListener('click', showQuests);
+    document.getElementById('side-entry').addEventListener('click', function() {
+        window.navigateToSideQuest();
+    });
     document.getElementById('close-detail').addEventListener('click', hideDetails);
     document.getElementById('history-link').addEventListener('click', showHistory);
+    document.getElementById('settings-link').addEventListener('click', showSettings);
     document.getElementById('history-home-back').addEventListener('click', hideHistory);
     document.getElementById('day-back').addEventListener('click', hideDayRecords);
     document.getElementById('prev-week').addEventListener('click', function() {
@@ -350,4 +669,25 @@ window.addEventListener('DOMContentLoaded', function() {
         currentWeekStart.setDate(currentWeekStart.getDate() + 7);
         renderWeek();
     });
+    document.getElementById('quests-back').addEventListener('click', hideQuests);
+    document.getElementById('add-quest-btn').addEventListener('click', showPicker);
+    document.getElementById('picker-back').addEventListener('click', hidePicker);
+    document.getElementById('settings-back').addEventListener('click', hideSettings);
+    document.getElementById('morning-enabled').addEventListener('change', function() {
+        var s = getSettings();
+        s.morning.enabled = this.checked;
+        saveSettings(s);
+    });
+    document.getElementById('evening-enabled').addEventListener('change', function() {
+        var s = getSettings();
+        s.evening.enabled = this.checked;
+        saveSettings(s);
+    });
+    document.getElementById('nudge-dismiss').addEventListener('click', hideNudge);
+    document.getElementById('nudge-open').addEventListener('click', function() {
+        hideNudge();
+        showHistory();
+    });
+    window.onSideQuestOpen = showSideQuestCard;
+    checkNudge();
 });

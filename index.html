@@ -40,22 +40,96 @@
     </div>
 
     <div id="main">
-        <button class="main-button" id="main-btn">
-            <svg viewBox="0 0 100 40">
-                <path d="M8 32 C35 30 65 24 90 10" fill="none"
-                      stroke="rgba(255,255,255,0.75)" stroke-width="2.4" stroke-linecap="round"/>
-                <circle cx="90" cy="10" r="3.2" fill="#ffffff"/>
-            </svg>
-        </button>
-        <button class="history-link" id="history-link">记录</button>
+        <div class="home-entries">
+            <button class="home-entry" id="quests-entry">
+                <span class="home-entry-title">主线</span>
+                <span class="home-entry-sub">有一件事，你真的想完成</span>
+            </button>
+            <button class="home-entry home-entry-side" id="side-entry">
+                <span class="home-entry-title">支线</span>
+                <span class="home-entry-sub">今天，也可以做一点别的</span>
+            </button>
+        </div>
+        <div class="home-links">
+            <button class="history-link" id="history-link">记录</button>
+            <button class="history-link" id="settings-link">设置</button>
+        </div>
     </div>
 
     <div id="side-quest">
         <div class="sq-content">
             <div class="sq-content-inner">
                 <div class="sq-title">支线世界</div>
-                <div class="sq-sub">上滑拉开百叶窗，这里是另一片光</div>
+                <div class="sq-sub" id="sq-sub">今天，也可以做一点别的</div>
+                <div class="sq-card" id="sq-card">
+                    <div class="sq-cat" id="sq-cat"></div>
+                    <div class="sq-task" id="sq-task"></div>
+                    <div id="sq-details" class="sq-details" style="display:none">
+                        <div class="sq-details-title">具体步骤</div>
+                        <ol class="sq-details-list" id="sq-details-list"></ol>
+                    </div>
+                    <div class="sq-actions">
+                        <button class="sq-btn secondary" id="sq-refresh">换一个</button>
+                        <button class="sq-btn primary" id="sq-do">去做</button>
+                        <button class="sq-btn secondary" id="sq-skip" style="display:none">我没做</button>
+                        <button class="sq-btn primary" id="sq-confirm" style="display:none">做完了</button>
+                    </div>
+                </div>
                 <button class="sq-back" id="sq-back">回到主线</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quests-page">
+        <div class="history-header">
+            <button id="quests-back" class="history-back">‹ 微仰</button>
+            <span class="history-title">我的主线</span>
+            <span class="history-placeholder"></span>
+        </div>
+        <div class="quests-list" id="quests-list"></div>
+        <button class="add-quest-btn" id="add-quest-btn">+ 添加一条主线</button>
+    </div>
+
+    <div id="quest-picker-page">
+        <div class="history-header">
+            <button id="picker-back" class="history-back">‹ 返回</button>
+            <span class="history-title">选择主线</span>
+            <span class="history-placeholder"></span>
+        </div>
+        <div class="picker-intro">可以同时拥有多条主线，选 1～3 条最合适的</div>
+        <div class="picker-groups" id="picker-groups"></div>
+    </div>
+
+    <div id="settings-page">
+        <div class="history-header">
+            <button id="settings-back" class="history-back">‹ 微仰</button>
+            <span class="history-title">设置</span>
+            <span class="history-placeholder"></span>
+        </div>
+        <div class="settings-group">
+            <div class="settings-group-title">早晚提醒</div>
+            <p class="settings-note">网页版提醒只在你打开页面时生效；真正的后台推送需要 Web Push 服务器，后续版本实现。</p>
+            <label class="settings-row">
+                <span>早上提醒</span>
+                <input type="checkbox" id="morning-enabled" class="settings-switch">
+            </label>
+            <label class="settings-row">
+                <span>晚上复盘提醒</span>
+                <input type="checkbox" id="evening-enabled" class="settings-switch">
+            </label>
+        </div>
+        <div class="settings-group">
+            <div class="settings-group-title">关于微仰</div>
+            <p class="settings-note">把视线，往上抬一点。</p>
+        </div>
+    </div>
+
+    <div id="evening-nudge">
+        <div class="nudge-content">
+            <div class="nudge-text" id="nudge-text">今天快结束了<br>要不要看看今天留下了什么？</div>
+            <div class="nudge-actions">
+                <button class="nudge-btn secondary" id="nudge-dismiss">明天再说</button>
+                <button class="nudge-btn primary" id="nudge-open">去看看</button>
             </div>
         </div>
     </div>
@@ -129,6 +203,7 @@
     </div>
 
     <script src="data.js"></script>
+    <script src="quests-data.js"></script>
     <script src="app.js"></script>
     <script src="gesture-blinds.js"></script>
     <script>
