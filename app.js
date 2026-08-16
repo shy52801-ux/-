@@ -4,6 +4,7 @@ var HISTORY_DAYS = 30;
 
 var currentWeekStart = getWeekStart(new Date());
 var selectedDateKey = formatDateKey(new Date());
+var currentView = 'home';
 
 function getTimeCategory() {
     var hour = new Date().getHours();
@@ -84,6 +85,8 @@ function showCard() {
     window._currentRec = rec;
     document.getElementById('card-category').textContent = rec.category;
     document.getElementById('card-content').textContent = rec.content;
+    document.getElementById('card-details').style.display = 'none';
+    hideDetails();
     
     var detailBtn = document.getElementById('detail-btn');
     var refreshBtn = document.getElementById('refresh-btn');
@@ -225,9 +228,7 @@ function renderWeek() {
         dayCell.appendChild(dot);
         dayCell.dataset.date = dayKey;
         dayCell.addEventListener('click', function() {
-            selectedDateKey = this.dataset.date;
-            renderWeek();
-            renderDayRecords();
+            showDayRecords(this.dataset.date);
         });
         grid.appendChild(dayCell);
 
@@ -235,27 +236,44 @@ function renderWeek() {
     }
 
     document.getElementById('week-range').textContent = getWeekRangeText();
+}
+
+function applyView(view) {
+    currentView = view;
+    document.getElementById('history-page').classList.toggle('show', view === 'history');
+    document.getElementById('history-day-page').classList.toggle('show', view === 'history-day');
+}
+
+function navigateTo(view) {
+    applyView(view);
+    try { history.pushState({ view: view }, ''); } catch (e) {}
+}
+
+function showDayRecords(dateKey) {
+    selectedDateKey = dateKey;
     renderDayRecords();
+    navigateTo('history-day');
 }
 
 function renderDayRecords() {
     var records = getRecordsForDate(selectedDateKey);
     var container = document.getElementById('day-records');
 
-    var parts = selectedDateKey.split('-');
-    var dateLabel = '月' + Number(parts[1]) + '日';
     var todayKey = formatDateKey(new Date());
+    var monthDay = Number(selectedDateKey.split('-')[1]) + '月' + Number(selectedDateKey.split('-')[2]) + '日';
     if (selectedDateKey === todayKey) {
-        dateLabel = '今天 · 月' + Number(parts[1]) + '日';
+        document.getElementById('day-summary').textContent = '今天 · 完成了 ' + records.length + ' 件小事';
+    } else {
+        document.getElementById('day-summary').textContent = monthDay + ' · 完成了 ' + records.length + ' 件小事';
     }
+    document.getElementById('day-date').textContent = monthDay;
 
     if (records.length === 0) {
-        container.innerHTML = '<div class="day-title">' + dateLabel + '</div>' +
-            '<div class="empty-hint">这一天，还没有留下记录。</div>';
+        container.innerHTML = '<div class="empty-hint">这一天，还没有留下记录。</div>';
         return;
     }
 
-    var html = '<div class="day-title">' + dateLabel + ' · 完成了 ' + records.length + ' 件小事</div>';
+    var html = '';
     for (var i = 0; i < records.length; i++) {
         var cat = records[i].category ? '<span class="rec-cat">' + records[i].category + '</span>' : '';
         html += '<div class="rec-item">' + cat + '<span class="rec-content">' + records[i].content + '</span></div>';
@@ -267,12 +285,28 @@ function showHistory() {
     currentWeekStart = getWeekStart(new Date());
     selectedDateKey = formatDateKey(new Date());
     renderWeek();
-    document.getElementById('history-page').classList.add('show');
+    navigateTo('history');
 }
 
 function hideHistory() {
-    document.getElementById('history-page').classList.remove('show');
+    applyView('home');
+    try { history.pushState({ view: 'home' }, ''); } catch (e) {}
 }
+
+function hideDayRecords() {
+    renderWeek();
+    navigateTo('history');
+}
+
+window.addEventListener('popstate', function(e) {
+    var target = (e.state && e.state.view) || 'home';
+    if (target === 'history-day') {
+        renderDayRecords();
+    } else if (target === 'history') {
+        renderWeek();
+    }
+    applyView(target);
+});
 
 window.addEventListener('DOMContentLoaded', function() {
     var riseLine = document.getElementById('riseLine');
@@ -306,7 +340,8 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('main-btn').addEventListener('click', showCard);
     document.getElementById('close-detail').addEventListener('click', hideDetails);
     document.getElementById('history-link').addEventListener('click', showHistory);
-    document.getElementById('history-back').addEventListener('click', hideHistory);
+    document.getElementById('history-home-back').addEventListener('click', hideHistory);
+    document.getElementById('day-back').addEventListener('click', hideDayRecords);
     document.getElementById('prev-week').addEventListener('click', function() {
         currentWeekStart.setDate(currentWeekStart.getDate() - 7);
         renderWeek();
