@@ -1,10 +1,11 @@
-const CACHE_NAME = 'weiyang-v8';
+const CACHE_NAME = 'weiyang-v9';
 const urlsToCache = [
     './',
     './index.html',
     './style.css',
     './data.js',
     './quests-data.js',
+    './mainTaskGenerator.js',
     './app.js',
     './manifest.json',
     './gesture-blinds.css',

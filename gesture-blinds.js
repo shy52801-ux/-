@@ -23,7 +23,7 @@ var BLINDS = (function() {
         if (document.getElementById('history-page').classList.contains('show')) return true;
         if (document.getElementById('history-day-page').classList.contains('show')) return true;
         if (document.getElementById('quests-page').classList.contains('show')) return true;
-        if (document.getElementById('quest-picker-page').classList.contains('show')) return true;
+        if (document.getElementById('quest-create-page').classList.contains('show')) return true;
         if (document.getElementById('settings-page').classList.contains('show')) return true;
         if (document.getElementById('evening-nudge').classList.contains('show')) return true;
         return false;
