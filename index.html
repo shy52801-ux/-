@@ -74,6 +74,7 @@
                         <button class="sq-btn secondary" id="sq-skip" style="display:none">我没做</button>
                         <button class="sq-btn primary" id="sq-confirm" style="display:none">做完了</button>
                     </div>
+                    <button class="feedback-undo sq-undo" id="sq-undo" style="display:none;">撤销完成</button>
                 </div>
                 <button class="sq-back" id="sq-back">回到主线</button>
             </div>
@@ -174,8 +175,11 @@
                 <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
             </div>
             <div class="feedback-text" id="feedback-text">你今天往上抬了一点点<br>这很棒</div>
+            <button class="feedback-undo" id="undo-btn" style="display:none;">撤销完成</button>
         </div>
     </div>
+
+    <div id="undo-toast">已撤销</div>
 
     <div id="history-page">
         <div class="history-header">

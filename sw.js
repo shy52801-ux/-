@@ -1,4 +1,4 @@
-const CACHE_NAME = 'weiyang-v6';
+const CACHE_NAME = 'weiyang-v7';
 const urlsToCache = [
     './',
     './index.html',

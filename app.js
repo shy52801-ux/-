@@ -35,13 +35,24 @@ function getHistory() {
 }
 
 function addToHistory(rec) {
-    var history = getHistory();
-    history.push({
+    var entry = {
+        id: 'wy-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
         content: rec.content,
         category: rec.category || '',
         ts: Date.now()
-    });
+    };
+    var history = getHistory();
+    history.push(entry);
     try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
+    return entry;
+}
+
+function removeHistoryById(id) {
+    var history = getHistory();
+    var filtered = history.filter(function(entry) {
+        return entry.id !== id;
+    });
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered)); } catch (e) {}
 }
 
 function getHistorySet() {
@@ -87,6 +98,7 @@ function getRecommendation() {
 function showCard() {
     var rec = getRecommendation();
     window._currentRec = rec;
+    window._lastCompletedEntry = null;
     document.getElementById('card-category').textContent = rec.category;
     document.getElementById('card-content').textContent = rec.content;
     document.getElementById('card-details').style.display = 'none';
@@ -115,6 +127,8 @@ function showConfirmCard(rec) {
     document.getElementById('card-category').textContent = rec.category;
     document.getElementById('card-content').textContent = rec.content;
     renderInlineDetails(rec.details);
+    var confirmBtn = document.getElementById('confirm-done-btn');
+    confirmBtn.disabled = false;
     
     document.getElementById('detail-btn').style.display = 'none';
     document.getElementById('refresh-btn').style.display = 'none';
@@ -127,10 +141,54 @@ function showConfirmCard(rec) {
         setTimeout(showCard, 300);
     };
     document.getElementById('confirm-done-btn').onclick = function() {
-        addToHistory(rec);
+        if (confirmBtn.disabled) return;
+        confirmBtn.disabled = true;
+        window._lastCompletedEntry = addToHistory(rec);
         hideCard();
-        setTimeout(showFinalFeedback, 400);
+        setTimeout(function() { showFinalFeedback(); }, 400);
     };
+}
+
+function undoLastCompletion() {
+    var entry = window._lastCompletedEntry;
+    if (!entry || !entry.id) return;
+    var undoBtn = document.getElementById('undo-btn');
+    if (undoBtn.disabled) return;
+    undoBtn.disabled = true;
+    removeHistoryById(entry.id);
+    if (entry.category && entry.category.indexOf('主线·') === 0) {
+        undoQuestDoneByEntry(entry);
+    }
+    window._lastCompletedEntry = null;
+    clearTimeout(window._feedbackTimer);
+    document.getElementById('complete-feedback').classList.remove('show');
+    undoBtn.style.display = 'none';
+    renderQuests();
+    showUndoToast();
+}
+
+function undoQuestDoneByEntry(entry) {
+    var quest = null;
+    for (var i = 0; i < MAIN_QUESTS.length; i++) {
+        var q = MAIN_QUESTS[i];
+        if (q.name + '：' + q.today === entry.content) { quest = q; break; }
+    }
+    if (!quest) return;
+    try {
+        var done = JSON.parse(localStorage.getItem(QUESTS_DONE_KEY) || '{}');
+        delete done[quest.id];
+        localStorage.setItem(QUESTS_DONE_KEY, JSON.stringify(done));
+    } catch (e) {}
+}
+
+function showUndoToast() {
+    var toast = document.getElementById('undo-toast');
+    if (!toast) return;
+    toast.classList.add('show');
+    clearTimeout(window._undoToastTimer);
+    window._undoToastTimer = setTimeout(function() {
+        toast.classList.remove('show');
+    }, 1200);
 }
 
 function renderInlineDetails(details) {
@@ -145,10 +203,21 @@ function renderInlineDetails(details) {
 }
 
 function showFinalFeedback() {
+    var feedback = document.getElementById('complete-feedback');
+    var undoBtn = document.getElementById('undo-btn');
     document.getElementById('feedback-text').innerHTML = '这一刻<br>你选择了自己。';
-    document.getElementById('complete-feedback').classList.add('show');
-    setTimeout(function() {
-        document.getElementById('complete-feedback').classList.remove('show');
+    if (window._lastCompletedEntry) {
+        undoBtn.style.display = 'block';
+        undoBtn.disabled = false;
+        undoBtn.onclick = undoLastCompletion;
+    } else {
+        undoBtn.style.display = 'none';
+    }
+    feedback.classList.add('show');
+    clearTimeout(window._feedbackTimer);
+    window._feedbackTimer = setTimeout(function() {
+        feedback.classList.remove('show');
+        undoBtn.style.display = 'none';
     }, 2500);
 }
 
@@ -293,9 +362,38 @@ function renderDayRecords() {
     var html = '';
     for (var i = 0; i < records.length; i++) {
         var cat = records[i].category ? '<span class="rec-cat">' + records[i].category + '</span>' : '';
-        html += '<div class="rec-item">' + cat + '<span class="rec-content">' + records[i].content + '</span></div>';
+        var undoLink = records[i].id
+            ? '<button class="rec-undo" data-id="' + records[i].id + '">撤销</button>'
+            : '';
+        html += '<div class="rec-item">' + cat + '<span class="rec-content">' + records[i].content + '</span>' + undoLink + '</div>';
     }
     container.innerHTML = html;
+
+    var undoBtns = container.querySelectorAll('.rec-undo');
+    for (var j = 0; j < undoBtns.length; j++) {
+        undoBtns[j].addEventListener('click', function() {
+            undoRecord(this.getAttribute('data-id'), this);
+        });
+    }
+}
+
+function undoRecord(id, btn) {
+    if (!id || btn.disabled) return;
+    btn.disabled = true;
+    var target = null;
+    var history = getHistory();
+    for (var i = 0; i < history.length; i++) {
+        if (history[i].id === id) { target = history[i]; break; }
+    }
+    window._lastCompletedEntry = null;
+    removeHistoryById(id);
+    if (target && target.category && target.category.indexOf('主线·') === 0) {
+        undoQuestDoneByEntry(target);
+    }
+    renderDayRecords();
+    renderWeek();
+    renderQuests();
+    showUndoToast();
 }
 
 function showHistory() {
@@ -357,7 +455,7 @@ function markQuestDone(questId) {
 }
 
 function addMainQuestDone(quest) {
-    addToHistory({
+    return addToHistory({
         content: quest.name + '：' + quest.today,
         category: '主线·' + quest.group,
         ts: Date.now()
@@ -398,7 +496,8 @@ function renderQuests() {
                 if (MAIN_QUESTS[k].id === id) quest = MAIN_QUESTS[k];
             }
             if (quest) {
-                addMainQuestDone(quest);
+                this.disabled = true;
+                window._lastCompletedEntry = addMainQuestDone(quest);
                 markQuestDone(id);
                 renderQuests();
                 showFinalFeedback();
@@ -458,6 +557,7 @@ function renderPicker() {
                 cur.splice(idx, 1);
             } else {
                 if (cur.length >= 3) {
+                    window._lastCompletedEntry = null;
                     showFinalFeedback();
                     return;
                 }
@@ -573,6 +673,9 @@ function showSideQuestCard() {
     var doBtn = document.getElementById('sq-do');
     var skipBtn = document.getElementById('sq-skip');
     var confirmBtn = document.getElementById('sq-confirm');
+    var undoBtn = document.getElementById('sq-undo');
+    undoBtn.style.display = 'none';
+    confirmBtn.disabled = false;
 
     refreshBtn.style.display = 'block';
     doBtn.style.display = 'block';
@@ -586,15 +689,30 @@ function showSideQuestCard() {
         doBtn.style.display = 'none';
         skipBtn.style.display = 'block';
         confirmBtn.style.display = 'block';
+        confirmBtn.disabled = false;
     };
     skipBtn.onclick = function() { showSideQuestCard(); };
     confirmBtn.onclick = function() {
-        addToHistory(rec);
+        if (confirmBtn.disabled) return;
+        confirmBtn.disabled = true;
+        window._lastCompletedEntry = addToHistory(rec);
         document.getElementById('sq-details').style.display = 'none';
         skipBtn.style.display = 'none';
         confirmBtn.style.display = 'none';
         document.getElementById('sq-task').textContent = '这一刻 你选择了自己。';
-        setTimeout(showSideQuestCard, 1400);
+        undoBtn.style.display = 'block';
+        undoBtn.disabled = false;
+        undoBtn.onclick = function() {
+            clearTimeout(window._sqNextTimer);
+            undoLastCompletion();
+            undoBtn.style.display = 'none';
+            showSideQuestCard();
+        };
+        clearTimeout(window._sqNextTimer);
+        window._sqNextTimer = setTimeout(function() {
+            undoBtn.style.display = 'none';
+            showSideQuestCard();
+        }, 1400);
     };
 }
 
