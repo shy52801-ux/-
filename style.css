@@ -672,6 +672,105 @@ body {
     cursor: default;
 }
 
+.quest-more {
+    background: none;
+    border: none;
+    color: #4a4d55;
+    font-size: 18px;
+    letter-spacing: 3px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 8px;
+    transition: color 0.3s ease;
+}
+
+.quest-more:hover { color: #8a8d94; }
+
+.quest-undo-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #5a5d64;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-radius: 12px;
+    padding: 3px 10px;
+    cursor: pointer;
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.quest-undo-btn:hover { color: #9a9da4; border-color: rgba(255,255,255,0.2); }
+
+.quest-confirm {
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+}
+
+.quest-confirm-title {
+    font-size: 14px;
+    color: #f2efe9;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.quest-confirm-text {
+    font-size: 12px;
+    color: #8a8d94;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.quest-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.quest-cancel {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #8a8d94;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border-radius: 14px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quest-cancel:hover { color: #f5f3ee; border-color: rgba(255,255,255,0.25); }
+
+.quest-delete {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #d6c7a1;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border-radius: 14px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quest-delete:hover { background: rgba(255,255,255,0.14); }
+
+.quest-add-empty {
+    margin-top: 20px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    color: #f2efe9;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 10px 26px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quest-add-empty:hover { background: rgba(255,255,255,0.06); }
+
 .add-quest-btn {
     width: 100%;
     background: none;

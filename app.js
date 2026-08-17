@@ -169,21 +169,33 @@ function undoLastCompletion() {
 
 function undoQuestDoneByEntry(entry) {
     var quest = null;
-    for (var i = 0; i < MAIN_QUESTS.length; i++) {
-        var q = MAIN_QUESTS[i];
-        if (q.name + '：' + q.today === entry.content) { quest = q; break; }
+    if (entry.mainlineId) {
+        for (var i = 0; i < MAIN_QUESTS.length; i++) {
+            if (MAIN_QUESTS[i].id === entry.mainlineId) { quest = MAIN_QUESTS[i]; break; }
+        }
+    }
+    if (!quest && entry.content) {
+        for (var j = 0; j < MAIN_QUESTS.length; j++) {
+            var q = MAIN_QUESTS[j];
+            if (q.name + '：' + q.today === entry.content) { quest = q; break; }
+        }
     }
     if (!quest) return;
+    var todayKey = formatDateKey(new Date());
     try {
-        var done = JSON.parse(localStorage.getItem(QUESTS_DONE_KEY) || '{}');
-        delete done[quest.id];
+        var done = JSON.parse(localStorage.getItem(QUESTS_DONE_KEY) || '{}') || {};
+        var list = done[todayKey] || [];
+        var idx = list.indexOf(quest.id);
+        if (idx >= 0) list.splice(idx, 1);
+        done[todayKey] = list;
         localStorage.setItem(QUESTS_DONE_KEY, JSON.stringify(done));
     } catch (e) {}
 }
 
-function showUndoToast() {
+function showUndoToast(text) {
     var toast = document.getElementById('undo-toast');
     if (!toast) return;
+    toast.textContent = text || '已撤销';
     toast.classList.add('show');
     clearTimeout(window._undoToastTimer);
     window._undoToastTimer = setTimeout(function() {
@@ -361,7 +373,15 @@ function renderDayRecords() {
 
     var html = '';
     for (var i = 0; i < records.length; i++) {
-        var cat = records[i].category ? '<span class="rec-cat">' + records[i].category + '</span>' : '';
+        var catText = records[i].category || '';
+        if (records[i].mainlineId) {
+            var qName = '';
+            for (var qi = 0; qi < MAIN_QUESTS.length; qi++) {
+                if (MAIN_QUESTS[qi].id === records[i].mainlineId) { qName = MAIN_QUESTS[qi].name; break; }
+            }
+            catText = qName ? '主线·' + qName : (records[i].category || '主线');
+        }
+        var cat = catText ? '<span class="rec-cat">' + catText + '</span>' : '';
         var undoLink = records[i].id
             ? '<button class="rec-undo" data-id="' + records[i].id + '">撤销</button>'
             : '';
@@ -455,34 +475,60 @@ function markQuestDone(questId) {
 }
 
 function addMainQuestDone(quest) {
-    return addToHistory({
+    var entry = addToHistory({
         content: quest.name + '：' + quest.today,
         category: '主线·' + quest.group,
         ts: Date.now()
     });
+    entry.type = 'main';
+    entry.mainlineId = quest.id;
+    var history = getHistory();
+    for (var i = history.length - 1; i >= 0; i--) {
+        if (history[i].id === entry.id) {
+            history[i].type = 'main';
+            history[i].mainlineId = quest.id;
+            break;
+        }
+    }
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
+    return entry;
 }
 
 function renderQuests() {
     var list = document.getElementById('quests-list');
     var quests = getSelectedQuests();
     if (quests.length === 0) {
-        list.innerHTML = '<div class="empty-hint">还没有主线。<br>选一件真正想完成的事。</div>';
+        list.innerHTML = '<div class="empty-hint">还没有主线。<br>给自己一个想走去的方向。</div>' +
+            '<button class="quest-add-empty" id="quest-add-empty">添加主线</button>';
+        var addBtn = document.getElementById('quest-add-empty');
+        if (addBtn) addBtn.addEventListener('click', showPicker);
         return;
     }
     var html = '';
     for (var i = 0; i < quests.length; i++) {
         var q = quests[i];
         var done = isQuestDoneToday(q.id);
-        var doneMark = done ? '<span class="quest-done-mark">✓ 今天已完成</span>' : '';
-        var btn = done
-            ? '<button class="quest-done-btn done" disabled>做完了</button>'
-            : '<button class="quest-done-btn" data-quest="' + q.id + '">做完了</button>';
-        html += '<div class="quest-item">' +
+        var foot = '';
+        if (done) {
+            foot = '<span class="quest-done-mark">✓ 已完成</span>' +
+                '<button class="quest-undo-btn" data-quest="' + q.id + '">撤销</button>';
+        } else {
+            foot = '<button class="quest-done-btn" data-quest="' + q.id + '">做完了</button>';
+        }
+        html += '<div class="quest-item" data-quest="' + q.id + '">' +
             '<div class="quest-head"><span class="quest-name">' + q.name + '</span>' +
-            '<span class="quest-stage">' + q.stage + '</span></div>' +
+            '<button class="quest-more" data-quest="' + q.id + '">···</button></div>' +
+            '<div class="quest-stage">' + q.stage + '</div>' +
             '<div class="quest-week">本周：' + q.weekGoal + '</div>' +
             '<div class="quest-today">下一步：' + q.today + '</div>' +
-            '<div class="quest-foot">' + doneMark + btn + '</div>' +
+            '<div class="quest-foot">' + foot + '</div>' +
+            '<div class="quest-confirm" data-quest="' + q.id + '" style="display:none;">' +
+            '<div class="quest-confirm-title">删除「' + q.name + '」？</div>' +
+            '<div class="quest-confirm-text">将停止这个主线之后的任务安排。过去已经完成的记录仍会保留。</div>' +
+            '<div class="quest-confirm-actions">' +
+            '<button class="quest-cancel" data-quest="' + q.id + '">取消</button>' +
+            '<button class="quest-delete" data-quest="' + q.id + '">删除主线</button>' +
+            '</div></div>' +
             '</div>';
     }
     list.innerHTML = html;
@@ -504,6 +550,109 @@ function renderQuests() {
             }
         });
     }
+
+    var undoBtns = list.querySelectorAll('.quest-undo-btn');
+    for (var u = 0; u < undoBtns.length; u++) {
+        undoBtns[u].addEventListener('click', function() {
+            undoMainQuestToday(this.getAttribute('data-quest'));
+        });
+    }
+
+    var moreBtns = list.querySelectorAll('.quest-more');
+    for (var m = 0; m < moreBtns.length; m++) {
+        moreBtns[m].addEventListener('click', function() {
+            var id = this.getAttribute('data-quest');
+            var confirmBox = list.querySelector('.quest-confirm[data-quest="' + id + '"]');
+            if (confirmBox) {
+                var isHidden = confirmBox.style.display === 'none';
+                var allBoxes = list.querySelectorAll('.quest-confirm');
+                for (var b = 0; b < allBoxes.length; b++) allBoxes[b].style.display = 'none';
+                confirmBox.style.display = isHidden ? 'block' : 'none';
+            }
+        });
+    }
+
+    var cancelBtns = list.querySelectorAll('.quest-cancel');
+    for (var c = 0; c < cancelBtns.length; c++) {
+        cancelBtns[c].addEventListener('click', function() {
+            var id = this.getAttribute('data-quest');
+            var confirmBox = list.querySelector('.quest-confirm[data-quest="' + id + '"]');
+            if (confirmBox) confirmBox.style.display = 'none';
+        });
+    }
+
+    var delBtns = list.querySelectorAll('.quest-delete');
+    for (var d = 0; d < delBtns.length; d++) {
+        delBtns[d].addEventListener('click', function() {
+            deleteQuest(this.getAttribute('data-quest'));
+        });
+    }
+}
+
+function deleteQuest(questId) {
+    var ids = [];
+    try { ids = JSON.parse(localStorage.getItem(QUESTS_KEY) || '[]') || []; } catch (e) {}
+    var idx = ids.indexOf(questId);
+    if (idx >= 0) ids.splice(idx, 1);
+    try { localStorage.setItem(QUESTS_KEY, JSON.stringify(ids)); } catch (e) {}
+
+    var todayKey = formatDateKey(new Date());
+    try {
+        var done = JSON.parse(localStorage.getItem(QUESTS_DONE_KEY) || '{}') || {};
+        var list = done[todayKey] || [];
+        var didx = list.indexOf(questId);
+        if (didx >= 0) list.splice(didx, 1);
+        done[todayKey] = list;
+        localStorage.setItem(QUESTS_DONE_KEY, JSON.stringify(done));
+    } catch (e) {}
+
+    window._lastCompletedEntry = null;
+    renderQuests();
+    showUndoToast('已删除主线');
+}
+
+function undoMainQuestToday(questId) {
+    var quest = null;
+    for (var k = 0; k < MAIN_QUESTS.length; k++) {
+        if (MAIN_QUESTS[k].id === questId) quest = MAIN_QUESTS[k];
+    }
+    if (!quest) return;
+    var todayKey = formatDateKey(new Date());
+    var history = getHistory();
+    var candidates = [];
+    for (var i = 0; i < history.length; i++) {
+        var e = history[i];
+        if (formatDateKey(new Date(e.ts)) !== todayKey) continue;
+        var isMain = (e.type === 'main' && e.mainlineId === questId) ||
+            (!e.type && e.content === quest.name + '：' + quest.today);
+        if (isMain) candidates.push(e);
+    }
+    candidates.sort(function(a, b) { return a.ts - b.ts; });
+    if (candidates.length > 0) {
+        var target = candidates[candidates.length - 1];
+        if (target.id) {
+            removeHistoryById(target.id);
+        } else {
+            var filtered = history.filter(function(ent) {
+                return !(ent.content === target.content && ent.ts === target.ts);
+            });
+            try { localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered)); } catch (e) {}
+        }
+    }
+    try {
+        var done = JSON.parse(localStorage.getItem(QUESTS_DONE_KEY) || '{}') || {};
+        var list = done[todayKey] || [];
+        var didx = list.indexOf(questId);
+        if (didx >= 0) list.splice(didx, 1);
+        done[todayKey] = list;
+        localStorage.setItem(QUESTS_DONE_KEY, JSON.stringify(done));
+    } catch (e) {}
+
+    window._lastCompletedEntry = null;
+    renderQuests();
+    renderWeek();
+    renderDayRecords();
+    showUndoToast();
 }
 
 function showQuests() {
