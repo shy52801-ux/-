@@ -107,18 +107,19 @@ body {
     padding-bottom: 8vh;
 }
 
-.home-brand {
+.brand-title {
     font-family: 'Noto Serif CJK SC', serif;
-    font-size: 30px;
-    letter-spacing: 14px;
-    text-indent: 14px;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-indent: 8px;
     color: var(--text-main);
 }
 
-.home-tagline {
-    margin-top: 14px;
-    font-size: 13px;
-    letter-spacing: 3px;
+.brand-subtitle {
+    margin-top: 12px;
+    font-size: 14px;
+    letter-spacing: 2px;
     color: var(--text-secondary);
 }
 
@@ -143,61 +144,42 @@ body {
     padding-bottom: clamp(132px, 15vh, 168px);
 }
 
-/* 主线：主行动入口 · 高权重（V3.3 晨光白主题） */
-.home-entry-main {
-    width: min(70%, 320px);
-    height: 72px;
-    border-radius: 20px;
-    background: var(--text-main);
-    border: none;
-    color: #FFFFFF;
-    box-shadow: var(--shadow);
-}
-
-.home-entry-main .home-entry-title {
-    color: #FFFFFF;
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 4px;
-}
-
-.home-entry-main .home-entry-sub {
-    color: #FFFFFF;
-    opacity: 0.65;
-}
-
-.home-entry-main:hover { transform: scale(1.03); opacity: 0.96; }
-.home-entry-main:active { transform: scale(0.97); }
-
-.home-entry {
+/* 主线入口：卡片（V3.3.1 视觉修正） */
+.main-entry {
+    width: 82%;
+    min-height: 96px;
+    padding: 24px;
+    border-radius: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    color: var(--text-main);
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 0 22px;
-    overflow: hidden;
     transition: all 0.3s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
-.home-entry-title {
+.main-entry .entry-title {
     font-family: 'Noto Serif CJK SC', serif;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    color: var(--text-main);
 }
 
-.home-entry-sub {
+.main-entry .entry-desc {
     font-size: 14px;
     letter-spacing: 1px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    color: var(--text-secondary);
 }
+
+.main-entry:hover { transform: scale(1.02); box-shadow: 0 12px 34px rgba(0, 0, 0, 0.09); }
+.main-entry:active { transform: scale(0.98); }
 
 #card-container {
     position: fixed; top: 0; left: 0;
@@ -552,13 +534,13 @@ body {
 }
 
 .day-num.today {
-    color: var(--primary);
+    color: var(--accent);
 }
 
 .day-dot {
     width: 4px; height: 4px;
     border-radius: 50%;
-    background: var(--primary);
+    background: var(--accent);
     margin-top: 8px;
 }
 
@@ -697,7 +679,7 @@ body {
 }
 
 .tl-journal .tl-content {
-    color: var(--primary);
+    color: var(--accent);
 }
 
 .tl-meta {
@@ -929,7 +911,7 @@ body {
 
 .quest-done-mark {
     font-size: 12px;
-    color: var(--primary);
+    color: var(--accent);
     letter-spacing: 1px;
 }
 
@@ -1024,7 +1006,7 @@ body {
 .quest-delete {
     background: rgba(23,23,23,0.08);
     border: none;
-    color: var(--primary);
+    color: var(--accent);
     font-size: 12px;
     letter-spacing: 1px;
     border-radius: 14px;
@@ -1114,7 +1096,7 @@ body {
 
 .picker-mark {
     font-size: 14px;
-    color: var(--primary);
+    color: var(--accent);
 }
 
 /* ============ V2：设置页 ============ */
@@ -1170,7 +1152,7 @@ body {
 
 .settings-switch:checked::after {
     left: 22px;
-    background: var(--primary);
+    background: var(--accent);
 }
 
 .settings-note {
@@ -1178,6 +1160,25 @@ body {
     color: var(--text-faint);
     line-height: 1.8;
     margin-bottom: 12px;
+}
+
+/* ============ V3.3.1：设置页主题入口（仅 UI） ============ */
+
+.theme-row {
+    cursor: default;
+}
+
+.theme-badge {
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.theme-badge.current {
+    color: var(--accent);
+}
+
+.theme-badge.locked {
+    color: var(--text-faint);
 }
 
 /* ============ V2：晚间提醒 ============ */
@@ -1244,15 +1245,14 @@ body {
 
 @media (max-height: 700px) {
     .home-top { height: 30vh; min-height: 120px; padding-bottom: 5vh; }
-    .home-brand { font-size: 26px; letter-spacing: 12px; text-indent: 12px; }
-    .home-tagline { margin-top: 10px; font-size: 12px; }
+    .brand-title { font-size: 30px; letter-spacing: 7px; text-indent: 7px; }
+    .brand-subtitle { margin-top: 10px; font-size: 13px; }
     .home-entries { height: 34vh; min-height: 168px; }
-    .home-entry-main { height: 64px; border-radius: 18px; }
+    .main-entry { min-height: 88px; border-radius: 20px; }
     .home-bottom { padding-bottom: 118px; }
 }
 
 @media (max-width: 359px) {
-    .home-entry-main { width: min(80%, 300px); }
-    .home-entry { gap: 6px; padding: 0 14px; }
+    .main-entry { width: 88%; }
     .home-bottom { padding-bottom: 108px; }
 }

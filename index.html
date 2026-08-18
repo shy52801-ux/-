@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="微仰">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#FAF8F3">
     <title>微仰</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-180.png">
@@ -42,13 +42,13 @@
 
     <div id="main">
         <div class="home-top">
-            <div class="home-brand">微仰</div>
-            <div class="home-tagline">把视线，往上抬一点</div>
+            <div class="brand-title">微仰</div>
+            <div class="brand-subtitle">今天也向前一点</div>
         </div>
         <div class="home-entries">
-            <button class="home-entry home-entry-main" id="quests-entry">
-                <span class="home-entry-title">开始你的目标</span>
-                <span class="home-entry-sub">一步一步推进</span>
+            <button class="main-entry" id="quests-entry">
+                <span class="entry-title">今日主线</span>
+                <span class="entry-desc">你的目标任务</span>
             </button>
         </div>
         <div class="home-bottom">
@@ -127,6 +127,21 @@
                 <span>晚上复盘提醒</span>
                 <input type="checkbox" id="evening-enabled" class="settings-switch">
             </label>
+        </div>
+        <div class="settings-group">
+            <div class="settings-group-title">主题</div>
+            <div class="settings-row theme-row">
+                <span>晨光白</span>
+                <span class="theme-badge current">当前</span>
+            </div>
+            <div class="settings-row theme-row">
+                <span>森林绿</span>
+                <span class="theme-badge locked">🔒</span>
+            </div>
+            <div class="settings-row theme-row">
+                <span>夜晚黑</span>
+                <span class="theme-badge locked">🔒</span>
+            </div>
         </div>
         <div class="settings-group">
             <div class="settings-group-title">关于微仰</div>

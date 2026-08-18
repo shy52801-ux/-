@@ -123,21 +123,23 @@ body.side-quest-exiting #side-quest {
 }
 
 .sq-back {
-    background: none;
-    border: 1px solid rgba(70, 82, 74, 0.35);
-    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(70, 82, 74, 0.25);
+    border-radius: 18px;
     color: var(--side-text);
-    font-size: 14px;
-    letter-spacing: 3px;
-    padding: 12px 28px;
+    font-size: 16px;
+    letter-spacing: 2px;
+    min-width: 180px;
+    height: 56px;
+    padding: 0 32px;
     cursor: pointer;
     transition: all 0.3s ease;
     pointer-events: auto;
 }
 
 .sq-back:hover {
-    background: rgba(70, 82, 74, 0.12);
-    border-color: rgba(70, 82, 74, 0.6);
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(70, 82, 74, 0.5);
 }
 
 .bind-hint {
@@ -193,7 +195,7 @@ body.hidden .bind-hint {
     overflow: hidden;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: 24px;
     padding: 26px 22px 22px;
     margin-bottom: 26px;
     pointer-events: auto;

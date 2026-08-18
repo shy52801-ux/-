@@ -18,11 +18,11 @@
     --line-soft: rgba(23, 23, 23, 0.07);
 
     /* 主线（蓝） */
-    --primary: #7D9CB8;
+    --accent: #7D9CB8;
     --accent-soft: rgba(125, 156, 184, 0.12);
 
     /* 支线（浅绿） */
-    --side: #B8C7A5;
+    --side-accent: #B8C7A5;
     --side-text: #46524A;
     --side-surface: rgba(184, 199, 165, 0.12);
     --side-line: rgba(70, 82, 74, 0.22);
