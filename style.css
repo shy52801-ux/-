@@ -531,6 +531,161 @@ body {
 .rec-undo:hover { color: #9a9da4; border-color: rgba(255,255,255,0.2); }
 .rec-undo:disabled { opacity: 0.3; cursor: default; }
 
+/* ============ V4：成长时间轴 ============ */
+
+.day-records {
+    position: relative;
+    padding: 8px 0 12px 10px;
+}
+
+.tl-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 0;
+    position: relative;
+}
+
+.tl-item::before {
+    content: '';
+    position: absolute;
+    left: 84px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255,255,255,0.06);
+}
+
+.tl-item:first-child::before { top: 50%; }
+.tl-item:last-child::before { bottom: 50%; }
+
+.tl-time {
+    flex-shrink: 0;
+    width: 60px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #5d6067;
+    padding-top: 3px;
+    text-align: right;
+}
+
+.tl-node {
+    flex-shrink: 0;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 5px;
+}
+
+.tl-node::after {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #2e3342;
+    border: 1px solid rgba(255,255,255,0.15);
+    position: relative;
+    z-index: 1;
+}
+
+.tl-node-journal::after {
+    display: none;
+}
+
+.tl-node-journal {
+    color: #8a8d94;
+    font-size: 13px;
+    padding-top: 2px;
+}
+
+.tl-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.tl-content {
+    font-size: 14px;
+    color: #f5f3ee;
+    line-height: 1.7;
+    word-break: break-word;
+}
+
+.tl-journal .tl-content {
+    color: #d6c7a1;
+}
+
+.tl-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.tl-source {
+    font-size: 11px;
+    color: #5d6067;
+    letter-spacing: 1px;
+}
+
+/* ============ V4：今日日志 ============ */
+
+.journal-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.journal-toggle {
+    background: none;
+    border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 14px;
+    width: 100%;
+    padding: 12px;
+    color: #8a8d94;
+    font-size: 13px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.journal-toggle:hover { color: #f2efe9; border-color: rgba(255,255,255,0.3); }
+
+.journal-editor {
+    margin-top: 14px;
+}
+
+.journal-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #f5f3ee;
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 12px;
+    min-height: 96px;
+    resize: none;
+    font-family: inherit;
+}
+
+.journal-input:focus { outline: none; border-color: rgba(160,190,255,0.3); }
+
+.journal-save {
+    margin-top: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #f5f3ee;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 18px;
+    padding: 8px 26px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.journal-save:hover { background: rgba(255,255,255,0.2); }
+
 /* ============ V2：主页双入口 ============ */
 
 .home-entries {

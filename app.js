@@ -1,6 +1,7 @@
 var lastCategory = '';
 var HISTORY_KEY = 'wy_history';
 var HISTORY_DAYS = 30;
+var JOURNAL_KEY = 'wy_journal';
 var QUESTS_KEY = 'wy_quests';
 var MAINLINES_KEY = 'wy_mainlines';
 var QUESTS_DONE_KEY = 'wy_quests_done';
@@ -41,13 +42,87 @@ function addToHistory(rec, type) {
         id: 'wy-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
         content: rec.content,
         category: rec.category || '',
-        ts: Date.now()
+        ts: Date.now(),
+        completedAt: Date.now()
     };
     if (type) entry.type = type;
     var history = getHistory();
     history.push(entry);
     try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
     return entry;
+}
+
+function getJournals() {
+    try {
+        var raw = localStorage.getItem(JOURNAL_KEY);
+        if (!raw) return [];
+        var arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function getJournalForDate(dateKey) {
+    var journals = getJournals();
+    var list = [];
+    for (var i = 0; i < journals.length; i++) {
+        if (journals[i].date === dateKey) list.push(journals[i]);
+    }
+    list.sort(function(a, b) { return (a.createdAt || 0) - (b.createdAt || 0); });
+    return list;
+}
+
+function addJournal(dateKey, content) {
+    var journals = getJournals();
+    journals.push({
+        id: 'jl-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+        date: dateKey,
+        content: content,
+        createdAt: Date.now()
+    });
+    try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(journals)); } catch (e) {}
+}
+
+function formatClock(ts) {
+    var d = new Date(ts);
+    var h = d.getHours();
+    var m = d.getMinutes();
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+}
+
+function getRecordSource(entry) {
+    if (entry.mainlineId) {
+        var ml = findMainline(entry.mainlineId);
+        if (ml) return '来自：' + ml.title + '主线';
+        if (entry.mainlineTitle) return '来自：' + entry.mainlineTitle + '主线';
+        return '来自：主线';
+    }
+    if (entry.type === 'side') return '来自：支线';
+    if (entry.category && entry.category.indexOf('主线·') === 0) return '来自：主线';
+    return '来自：支线';
+}
+
+function getDayTimeline(dateKey) {
+    var list = [];
+    var records = getRecordsForDate(dateKey);
+    for (var i = 0; i < records.length; i++) {
+        list.push({
+            kind: 'task',
+            time: records[i].completedAt || records[i].ts || 0,
+            entry: records[i]
+        });
+    }
+    var journals = getJournalForDate(dateKey);
+    for (var j = 0; j < journals.length; j++) {
+        list.push({
+            kind: 'journal',
+            time: journals[j].createdAt || 0,
+            entry: journals[j]
+        });
+    }
+    list.sort(function(a, b) { return a.time - b.time; });
+    return list;
 }
 
 function getMainlines() {
@@ -438,43 +513,50 @@ function showDayRecords(dateKey) {
 }
 
 function renderDayRecords() {
-    var records = getRecordsForDate(selectedDateKey);
+    var timeline = getDayTimeline(selectedDateKey);
     var container = document.getElementById('day-records');
 
     var todayKey = formatDateKey(new Date());
     var monthDay = Number(selectedDateKey.split('-')[1]) + '月' + Number(selectedDateKey.split('-')[2]) + '日';
+    var taskCount = timeline.filter(function(t) { return t.kind === 'task'; }).length;
     if (selectedDateKey === todayKey) {
-        document.getElementById('day-summary').textContent = '今天 · 完成了 ' + records.length + ' 件小事';
+        document.getElementById('day-summary').textContent = '今天 · 完成了 ' + taskCount + ' 件小事';
     } else {
-        document.getElementById('day-summary').textContent = monthDay + ' · 完成了 ' + records.length + ' 件小事';
+        document.getElementById('day-summary').textContent = monthDay + ' · 完成了 ' + taskCount + ' 件小事';
     }
     document.getElementById('day-date').textContent = monthDay;
 
-    if (records.length === 0) {
+    if (timeline.length === 0) {
         container.innerHTML = '<div class="empty-hint">这一天，还没有留下记录。</div>';
-        return;
-    }
-
-    var html = '';
-    for (var i = 0; i < records.length; i++) {
-        var catText = records[i].category || '';
-        if (records[i].mainlineId) {
-            var qName = '';
-            var rml = findMainline(records[i].mainlineId);
-            if (rml) {
-                qName = rml.title;
-            } else if (records[i].mainlineTitle) {
-                qName = records[i].mainlineTitle;
+    } else {
+        var html = '';
+        for (var i = 0; i < timeline.length; i++) {
+            var node = timeline[i];
+            var timeText = formatClock(node.time);
+            if (node.kind === 'journal') {
+                html += '<div class="tl-item tl-journal">' +
+                    '<div class="tl-time">' + timeText + '</div>' +
+                    '<div class="tl-node tl-node-journal">✎</div>' +
+                    '<div class="tl-body">' +
+                    '<div class="tl-content">' + node.entry.content + '</div>' +
+                    '<div class="tl-source">今日记录</div>' +
+                    '</div></div>';
+            } else {
+                var e = node.entry;
+                var undoLink = e.id
+                    ? '<button class="rec-undo" data-id="' + e.id + '">撤销</button>'
+                    : '';
+                html += '<div class="tl-item">' +
+                    '<div class="tl-time">' + timeText + '</div>' +
+                    '<div class="tl-node"></div>' +
+                    '<div class="tl-body">' +
+                    '<div class="tl-content">' + e.content + '</div>' +
+                    '<div class="tl-meta"><span class="tl-source">' + getRecordSource(e) + '</span>' + undoLink + '</div>' +
+                    '</div></div>';
             }
-            catText = qName ? '主线·' + qName : (records[i].category || '主线');
         }
-        var cat = catText ? '<span class="rec-cat">' + catText + '</span>' : '';
-        var undoLink = records[i].id
-            ? '<button class="rec-undo" data-id="' + records[i].id + '">撤销</button>'
-            : '';
-        html += '<div class="rec-item">' + cat + '<span class="rec-content">' + records[i].content + '</span>' + undoLink + '</div>';
+        container.innerHTML = html;
     }
-    container.innerHTML = html;
 
     var undoBtns = container.querySelectorAll('.rec-undo');
     for (var j = 0; j < undoBtns.length; j++) {
@@ -482,6 +564,10 @@ function renderDayRecords() {
             undoRecord(this.getAttribute('data-id'), this);
         });
     }
+
+    document.getElementById('journal-toggle').style.display = selectedDateKey === todayKey ? 'block' : 'none';
+    var editor = document.getElementById('journal-editor');
+    if (selectedDateKey !== todayKey) editor.style.display = 'none';
 }
 
 function undoRecord(id, btn) {
@@ -1108,6 +1194,21 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('nudge-open').addEventListener('click', function() {
         hideNudge();
         showHistory();
+    });
+    document.getElementById('journal-toggle').addEventListener('click', function() {
+        var editor = document.getElementById('journal-editor');
+        var isHidden = editor.style.display === 'none';
+        editor.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) document.getElementById('journal-input').focus();
+    });
+    document.getElementById('journal-save').addEventListener('click', function() {
+        var input = document.getElementById('journal-input');
+        var text = input.value.replace(/^\s+|\s+$/g, '');
+        if (!text) return;
+        addJournal(selectedDateKey, text);
+        input.value = '';
+        document.getElementById('journal-editor').style.display = 'none';
+        renderDayRecords();
     });
     window.onSideQuestOpen = showSideQuestCard;
     checkNudge();
