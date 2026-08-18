@@ -11,6 +11,9 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" data-theme="theme-morning" href="themes/theme-morning.css">
+    <link rel="stylesheet" data-theme="theme-night" href="themes/theme-night.css" disabled>
+    <link rel="stylesheet" data-theme="theme-forest" href="themes/theme-forest.css" disabled>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="gesture-blinds.css">
 </head>
@@ -62,15 +65,18 @@
     <div id="side-quest">
         <div class="sq-content">
             <div class="sq-content-inner">
+                <div class="side-navigation-hint"><span class="arrow">↓</span> 下滑，返回主线</div>
                 <div class="sq-title">支线世界</div>
                 <div class="sq-sub" id="sq-sub">今天，也可以做一点别的</div>
                 <div class="sq-card" id="sq-card">
-                    <div class="sq-cat" id="sq-cat"></div>
-                    <div class="sq-task" id="sq-task"></div>
-                    <div id="sq-details" class="sq-details">
-                        <div class="sq-details-box">
-                            <div class="sq-details-title">具体步骤</div>
-                            <ol class="sq-details-list" id="sq-details-list"></ol>
+                    <div class="sq-content">
+                        <div class="sq-cat" id="sq-cat"></div>
+                        <div class="sq-task" id="sq-task"></div>
+                        <div id="sq-details" class="sq-details">
+                            <div class="sq-details-box">
+                                <div class="sq-details-title">具体步骤</div>
+                                <ol class="sq-details-list" id="sq-details-list"></ol>
+                            </div>
                         </div>
                     </div>
                     <div class="sq-actions">
@@ -81,7 +87,6 @@
                     </div>
                     <button class="feedback-undo sq-undo" id="sq-undo" style="display:none;">撤销完成</button>
                 </div>
-                <button class="sq-back" id="sq-back">回到主线</button>
             </div>
         </div>
     </div>
@@ -130,17 +135,17 @@
         </div>
         <div class="settings-group">
             <div class="settings-group-title">主题</div>
-            <div class="settings-row theme-row">
-                <span>晨光白</span>
-                <span class="theme-badge current">当前</span>
+            <div class="settings-row theme-row" data-theme="theme-morning">
+                <span>晨光</span>
+                <span class="theme-badge" id="theme-badge-morning">当前</span>
             </div>
-            <div class="settings-row theme-row">
-                <span>森林绿</span>
-                <span class="theme-badge locked">🔒</span>
+            <div class="settings-row theme-row" data-theme="theme-night">
+                <span>夜航</span>
+                <span class="theme-badge" id="theme-badge-night"></span>
             </div>
-            <div class="settings-row theme-row">
-                <span>夜晚黑</span>
-                <span class="theme-badge locked">🔒</span>
+            <div class="settings-row theme-row" data-theme="theme-forest">
+                <span>森林</span>
+                <span class="theme-badge" id="theme-badge-forest"></span>
             </div>
         </div>
         <div class="settings-group">

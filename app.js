@@ -1263,5 +1263,46 @@ window.addEventListener('DOMContentLoaded', function() {
         renderDayRecords();
     });
     window.onSideQuestOpen = showSideQuestCard;
+    initThemeSwitching();
     checkNudge();
 });
+
+function initThemeSwitching() {
+    var THEME_KEY = 'theme';
+    var themeLinks = document.querySelectorAll('link[data-theme]');
+
+    function applyTheme(name) {
+        for (var i = 0; i < themeLinks.length; i++) {
+            themeLinks[i].disabled = themeLinks[i].getAttribute('data-theme') !== name;
+        }
+        var rows = document.querySelectorAll('.theme-row');
+        for (var j = 0; j < rows.length; j++) {
+            var isActive = rows[j].getAttribute('data-theme') === name;
+            rows[j].classList.toggle('selected', isActive);
+            var badge = rows[j].querySelector('.theme-badge');
+            if (badge) badge.textContent = isActive ? '当前' : '';
+        }
+    }
+
+    function currentTheme() {
+        var saved = null;
+        try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+        if (saved) return saved;
+        return 'theme-morning';
+    }
+
+    var themeRows = document.querySelectorAll('.theme-row');
+    for (var k = 0; k < themeRows.length; k++) {
+        (function(row) {
+            row.addEventListener('click', function() {
+                var name = row.getAttribute('data-theme');
+                if (!name) return;
+                if (window.AudioManager) window.AudioManager.playClick();
+                try { localStorage.setItem(THEME_KEY, name); } catch (e) {}
+                applyTheme(name);
+            });
+        })(themeRows[k]);
+    }
+
+    applyTheme(currentTheme());
+}
