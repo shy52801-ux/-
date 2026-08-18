@@ -67,9 +67,15 @@ body.blind-settling #main.show {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    opacity: var(--open-progress);
-    transform: translateY(calc((1 - var(--open-progress)) * 26px));
+    opacity: 1;
+    transform: none;
     transition: none;
+}
+
+/* 进入完成：class 兜底强制可见（不依赖 --open-progress，防变量失效环境内容消失） */
+body.side-quest-open .sq-content-inner {
+    opacity: 1;
+    transform: none;
 }
 
 body.blind-settling .sq-content-inner {
@@ -103,6 +109,26 @@ body.side-quest-exiting #main {
 
 body.side-quest-exiting #side-quest {
     pointer-events: none;
+}
+
+/* ============ V3.3.4：进入完成后的 class 级兜底（不依赖 --open-progress 变量） ============ */
+
+/* 盲层必须在支线打开时完全收起（防变量失效时 height 残留 100% 全屏遮罩） */
+body.side-quest-open #blind {
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+body.side-quest-open #blind-glow {
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+/* 主线在支线打开时必须完全让位（防变量失效时 opacity 残留 1 盖住支线） */
+body.side-quest-open #main,
+body.side-quest-open #main.show {
+    opacity: 0 !important;
+    transform: none !important;
 }
 
 /* ============ 支线视觉 ============ */

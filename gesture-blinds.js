@@ -103,7 +103,7 @@ var BLINDS = (function() {
     function enterSideQuest() {
         document.body.classList.remove('side-quest-entering');
         document.body.classList.add('side-quest-open');
-        setProgress(1);
+        forceOpenProgress();
         window.currentView = 'side';
         if (window.AudioManager) window.AudioManager.playBlindOpen();
         if (window.onSideQuestOpen) window.onSideQuestOpen();
@@ -112,10 +112,20 @@ var BLINDS = (function() {
     function quickEnterSideQuest() {
         if (isEnteringOrOpen()) return;
         document.body.classList.add('side-quest-open');
-        setProgress(1);
+        forceOpenProgress();
         window.currentView = 'side';
         if (window.AudioManager) window.AudioManager.playBlindOpen();
         if (window.onSideQuestOpen) window.onSideQuestOpen();
+    }
+
+    function forceOpenProgress() {
+        document.documentElement.style.setProperty('--open-progress', '1');
+        if (window.console) {
+            var v = window.getComputedStyle
+                ? getComputedStyle(document.documentElement).getPropertyValue('--open-progress')
+                : 'n/a';
+            console.log('side progress', v);
+        }
     }
 
     function navigateToSideQuest() {
