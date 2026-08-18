@@ -1,0 +1,39 @@
+/*
+ * theme-night.css —— 夜航（未来皮肤，未激活）
+ * 换肤方式：仅需将 index.html 中 <link href="themes/theme-morning.css"> 改为本文件。
+ */
+:root {
+    /* 背景 */
+    --bg-main: #101216;
+    --surface: #1A1D23;
+    --bg-soft: rgba(255, 255, 255, 0.04);
+
+    /* 文字 */
+    --text-main: #E8E9EB;
+    --text-secondary: #8A8F99;
+    --text-faint: #5B606B;
+
+    /* 边框 */
+    --border: #2A2F3A;
+    --line-soft: rgba(255, 255, 255, 0.07);
+
+    /* 主线（夜蓝） */
+    --primary: #6F8FB3;
+    --accent-soft: rgba(111, 143, 179, 0.14);
+
+    /* 支线（暗苔绿） */
+    --side: #7D8F6E;
+    --side-text: #B7C4A9;
+    --side-surface: rgba(125, 143, 110, 0.14);
+    --side-line: rgba(183, 196, 169, 0.22);
+
+    /* 百叶窗 */
+    --blind-bg: #05060A;
+    --blind-glow: rgba(125, 143, 110, 0.45);
+
+    /* 浮层遮罩 */
+    --overlay: rgba(16, 18, 22, 0.97);
+
+    /* 阴影 */
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}

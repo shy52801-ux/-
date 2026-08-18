@@ -1,0 +1,39 @@
+/*
+ * theme-forest.css —— 森林（未来皮肤，未激活）
+ * 换肤方式：仅需将 index.html 中 <link href="themes/theme-morning.css"> 改为本文件。
+ */
+:root {
+    /* 背景 */
+    --bg-main: #F3F5EF;
+    --surface: #FFFFFF;
+    --bg-soft: rgba(28, 33, 27, 0.04);
+
+    /* 文字 */
+    --text-main: #1C211B;
+    --text-secondary: #79806F;
+    --text-faint: #A4AA99;
+
+    /* 边框 */
+    --border: #C9D2C0;
+    --line-soft: rgba(28, 33, 27, 0.08);
+
+    /* 主线（松绿） */
+    --primary: #6E8F5E;
+    --accent-soft: rgba(110, 143, 94, 0.12);
+
+    /* 支线（苔绿） */
+    --side: #A9B48C;
+    --side-text: #46502F;
+    --side-surface: rgba(169, 180, 140, 0.14);
+    --side-line: rgba(70, 80, 47, 0.22);
+
+    /* 百叶窗 */
+    --blind-bg: #1A1D16;
+    --blind-glow: rgba(169, 180, 140, 0.5);
+
+    /* 浮层遮罩 */
+    --overlay: rgba(243, 245, 239, 0.97);
+
+    /* 阴影 */
+    --shadow: 0 8px 30px rgba(28, 33, 27, 0.07);
+}

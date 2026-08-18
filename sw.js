@@ -1,7 +1,11 @@
-const CACHE_NAME = 'weiyang-v11';
+const CACHE_NAME = 'weiyang-v12';
 const urlsToCache = [
     './',
     './index.html',
+    './theme.css',
+    './themes/theme-morning.css',
+    './themes/theme-forest.css',
+    './themes/theme-night.css',
     './style.css',
     './data.js',
     './quests-data.js',

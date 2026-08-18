@@ -1,0 +1,39 @@
+/*
+ * theme-morning.css —— 晨光白（默认主题）
+ * 换肤方式：仅需将 index.html 中 <link href="themes/theme-xxx.css"> 改为其他主题文件。
+ */
+:root {
+    /* 背景 */
+    --bg-main: #FAF8F3;
+    --surface: #FFFFFF;
+    --bg-soft: rgba(23, 23, 23, 0.04);
+
+    /* 文字 */
+    --text-main: #171717;
+    --text-secondary: #8A8A8A;
+    --text-faint: #AFB3BA;
+
+    /* 边框 */
+    --border: #D8DEE8;
+    --line-soft: rgba(23, 23, 23, 0.07);
+
+    /* 主线（蓝） */
+    --primary: #7D9CB8;
+    --accent-soft: rgba(125, 156, 184, 0.12);
+
+    /* 支线（浅绿） */
+    --side: #B8C7A5;
+    --side-text: #46524A;
+    --side-surface: rgba(184, 199, 165, 0.12);
+    --side-line: rgba(70, 82, 74, 0.22);
+
+    /* 百叶窗（黑暗空间隐喻，暖深灰而非纯黑） */
+    --blind-bg: #201D18;
+    --blind-glow: rgba(184, 199, 165, 0.55);
+
+    /* 浮层遮罩（完成反馈/详情/晚间提醒） */
+    --overlay: rgba(250, 248, 243, 0.97);
+
+    /* 阴影 */
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}

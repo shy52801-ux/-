@@ -10,6 +10,7 @@
     <title>微仰</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-180.png">
+    <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="gesture-blinds.css">
 </head>
@@ -18,9 +19,9 @@
         <svg class="brand-line" viewBox="0 0 320 160" width="240" height="120">
             <defs>
                 <linearGradient id="lineGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#4a4c52"/>
-                    <stop offset="55%" stop-color="#c9cbd1"/>
-                    <stop offset="100%" stop-color="#ffffff"/>
+                    <stop offset="0%" stop-color="#B9BDC4"/>
+                    <stop offset="55%" stop-color="#5A5F68"/>
+                    <stop offset="100%" stop-color="#171717"/>
                 </linearGradient>
                 <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
                     <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -33,7 +34,7 @@
             <path id="riseLine" d="M 30 120 C 110 112, 200 96, 270 46"
                   fill="none" stroke="url(#lineGrad)" stroke-width="4"
                   stroke-linecap="round" filter="url(#softGlow)"/>
-            <circle id="riseDot" cx="270" cy="46" r="7" fill="#ffffff" filter="url(#softGlow)"/>
+            <circle id="riseDot" cx="270" cy="46" r="7" fill="#171717" filter="url(#softGlow)"/>
         </svg>
         <div class="brand-name" id="brand-name">微仰</div>
         <div class="tagline" id="tagline">把视线，往上抬一点</div>
@@ -46,12 +47,8 @@
         </div>
         <div class="home-entries">
             <button class="home-entry home-entry-main" id="quests-entry">
-                <span class="home-entry-title">主线</span>
-                <span class="home-entry-sub">有一件事，你真的想完成</span>
-            </button>
-            <button class="home-entry home-entry-side" id="side-entry">
-                <span class="home-entry-title">支线</span>
-                <span class="home-entry-sub">今天，也可以做一点别的</span>
+                <span class="home-entry-title">开始你的目标</span>
+                <span class="home-entry-sub">一步一步推进</span>
             </button>
         </div>
         <div class="home-bottom">
@@ -151,7 +148,7 @@
         <div id="blind-glow"></div>
     </div>
 
-    <div class="bind-hint"><span class="bind-arrow">↑</span><span class="bind-text">上滑，探索支线</span></div>
+    <div class="bind-hint"><span class="gesture-arrow">↑</span><span class="bind-text">上滑，探索支线</span></div>
 
     <div id="card-container">
         <div class="card">

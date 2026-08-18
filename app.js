@@ -1186,14 +1186,6 @@ window.addEventListener('DOMContentLoaded', function() {
         if (window.AudioManager) window.AudioManager.playClick();
         showQuests();
     });
-    document.getElementById('side-entry').addEventListener('click', function() {
-        if (window.AudioManager) window.AudioManager.playClick();
-        if (window.BLINDS && window.BLINDS.quickEnterSideQuest) {
-            window.BLINDS.quickEnterSideQuest();
-        } else {
-            window.navigateToSideQuest();
-        }
-    });
     document.getElementById('sq-card').addEventListener('click', function(e) {
         if (e.target && e.target.closest && e.target.closest('.sq-btn, .feedback-undo, .sq-back')) return;
         this.classList.toggle('expanded');

@@ -1,0 +1,13 @@
+/*
+ * theme.css —— 主题入口。
+ * 三套主题结构见 themes/ 目录（theme-morning / theme-forest / theme-night）。
+ * 未来换肤：修改下面 @import 的行号或直接替换 index.html 中的 link。
+ */
+@import url('themes/theme-morning.css');
+
+body {
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue',
+                 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', Arial, sans-serif;
+}

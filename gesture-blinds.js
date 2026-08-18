@@ -35,7 +35,9 @@ var BLINDS = (function() {
     }
 
     function onTouchStart(e) {
-        if (settling || isEnteringOrOpen() || isOverlayOpen()) return;
+        if (settling) return;
+        if (isOverlayOpen()) return;
+        if (isEnteringOrOpen() && !document.body.classList.contains('side-quest-open')) return;
         tracking = true;
         startY = e.touches[0].clientY;
         document.body.classList.remove('blind-settling');
@@ -45,6 +47,16 @@ var BLINDS = (function() {
         if (!tracking) return;
         var y = e.touches[0].clientY;
         var deltaY = startY - y;
+
+        /* 支线空间：下滑返回主线空间 */
+        if (document.body.classList.contains('side-quest-open')) {
+            if (deltaY < -60) {
+                tracking = false;
+                navigateToMainQuest();
+            }
+            return;
+        }
+
         if (deltaY <= 0) {
             setProgress(0);
             return;
@@ -56,6 +68,7 @@ var BLINDS = (function() {
     function onTouchEnd() {
         if (!tracking) return;
         tracking = false;
+        if (document.body.classList.contains('side-quest-open')) return;
         if (progress > THRESHOLD) {
             settleTo(1);
         } else {
