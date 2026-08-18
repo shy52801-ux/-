@@ -65,10 +65,18 @@ var BLINDS = (function() {
         setProgress(clamp(deltaY / MAX_DIST, 0, 1));
     }
 
-    function onTouchEnd() {
+    function onTouchEnd(e) {
         if (!tracking) return;
         tracking = false;
-        if (document.body.classList.contains('side-quest-open')) return;
+        if (document.body.classList.contains('side-quest-open') ||
+            (typeof window.currentView === 'string' && window.currentView === 'side')) {
+            var endY = (e && e.changedTouches && e.changedTouches[0])
+                ? e.changedTouches[0].clientY : 0;
+            if (endY - startY > 80) {
+                navigateToMainQuest();
+            }
+            return;
+        }
         if (progress > THRESHOLD) {
             settleTo(1);
         } else {
@@ -95,6 +103,8 @@ var BLINDS = (function() {
     function enterSideQuest() {
         document.body.classList.remove('side-quest-entering');
         document.body.classList.add('side-quest-open');
+        setProgress(1);
+        window.currentView = 'side';
         if (window.AudioManager) window.AudioManager.playBlindOpen();
         if (window.onSideQuestOpen) window.onSideQuestOpen();
     }
@@ -102,6 +112,8 @@ var BLINDS = (function() {
     function quickEnterSideQuest() {
         if (isEnteringOrOpen()) return;
         document.body.classList.add('side-quest-open');
+        setProgress(1);
+        window.currentView = 'side';
         if (window.AudioManager) window.AudioManager.playBlindOpen();
         if (window.onSideQuestOpen) window.onSideQuestOpen();
     }
@@ -114,10 +126,14 @@ var BLINDS = (function() {
     function navigateToMainQuest() {
         var body = document.body;
         if (body.classList.contains('side-quest-exiting')) return;
-        if (!body.classList.contains('side-quest-open')) return;
+        if (!body.classList.contains('side-quest-open')) {
+            if (window.currentView === 'side') window.currentView = 'home';
+            return;
+        }
         settling = true;
         body.classList.remove('side-quest-open');
         body.classList.add('side-quest-exiting', 'blind-settling');
+        if (window.currentView === 'side') window.currentView = 'home';
         setProgress(0);
         setTimeout(function() {
             body.classList.remove('side-quest-exiting', 'blind-settling');

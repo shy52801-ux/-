@@ -1056,6 +1056,24 @@ function showSideQuestCard() {
     function fill() {
         var rec = getRecommendation();
         sqCurrentRec = rec;
+        if (!rec) {
+            document.getElementById('sq-cat').textContent = '支线世界';
+            document.getElementById('sq-task').textContent = '今天先休息一下，主线那边也值得看一眼。';
+            document.getElementById('sq-details-list').innerHTML = '';
+            card.classList.remove('expanded');
+            var refBtn = document.getElementById('sq-refresh');
+            var dBtn = document.getElementById('sq-do');
+            var skBtn = document.getElementById('sq-skip');
+            var cfBtn = document.getElementById('sq-confirm');
+            document.getElementById('sq-undo').style.display = 'none';
+            cfBtn.disabled = false;
+            refBtn.style.display = 'block';
+            dBtn.style.display = 'block';
+            skBtn.style.display = 'none';
+            cfBtn.style.display = 'none';
+            refBtn.onclick = function() { showSideQuestCard(); };
+            return;
+        }
         document.getElementById('sq-cat').textContent = rec.category;
         document.getElementById('sq-task').textContent = rec.content;
         card.classList.remove('expanded');
@@ -1123,8 +1141,8 @@ function showSideQuestCard() {
         return;
     }
     card.classList.add('switching');
+    fill();
     setTimeout(function() {
-        fill();
         card.classList.remove('switching');
     }, 220);
 }
