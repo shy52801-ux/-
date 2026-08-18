@@ -705,6 +705,7 @@ function renderQuests() {
                 this.disabled = true;
                 window._lastCompletedEntry = addMainQuestDone(ml);
                 markQuestDone(ml.id);
+                if (window.AudioManager) window.AudioManager.playComplete();
                 renderQuests();
                 showFinalFeedback();
             }
@@ -1050,68 +1051,91 @@ function hideNudge() {
 var sqCurrentRec = null;
 
 function showSideQuestCard() {
-    var rec = getRecommendation();
-    sqCurrentRec = rec;
-    document.getElementById('sq-cat').textContent = rec.category;
-    document.getElementById('sq-task').textContent = rec.content;
-    document.getElementById('sq-details').style.display = 'none';
+    var card = document.getElementById('sq-card');
 
-    var refreshBtn = document.getElementById('sq-refresh');
-    var doBtn = document.getElementById('sq-do');
-    var skipBtn = document.getElementById('sq-skip');
-    var confirmBtn = document.getElementById('sq-confirm');
-    var undoBtn = document.getElementById('sq-undo');
-    undoBtn.style.display = 'none';
-    confirmBtn.disabled = false;
-
-    refreshBtn.style.display = 'block';
-    doBtn.style.display = 'block';
-    skipBtn.style.display = 'none';
-    confirmBtn.style.display = 'none';
-
-    refreshBtn.onclick = function() { showSideQuestCard(); };
-    doBtn.onclick = function() {
+    function fill() {
+        var rec = getRecommendation();
+        sqCurrentRec = rec;
+        document.getElementById('sq-cat').textContent = rec.category;
+        document.getElementById('sq-task').textContent = rec.content;
+        card.classList.remove('expanded');
         renderSqInlineDetails(rec.details);
-        refreshBtn.style.display = 'none';
-        doBtn.style.display = 'none';
-        skipBtn.style.display = 'block';
-        confirmBtn.style.display = 'block';
+
+        var refreshBtn = document.getElementById('sq-refresh');
+        var doBtn = document.getElementById('sq-do');
+        var skipBtn = document.getElementById('sq-skip');
+        var confirmBtn = document.getElementById('sq-confirm');
+        var undoBtn = document.getElementById('sq-undo');
+        undoBtn.style.display = 'none';
         confirmBtn.disabled = false;
-    };
-    skipBtn.onclick = function() { showSideQuestCard(); };
-    confirmBtn.onclick = function() {
-        if (confirmBtn.disabled) return;
-        confirmBtn.disabled = true;
-        window._lastCompletedEntry = addToHistory(rec, 'side');
-        document.getElementById('sq-details').style.display = 'none';
+
+        refreshBtn.style.display = 'block';
+        doBtn.style.display = 'block';
         skipBtn.style.display = 'none';
         confirmBtn.style.display = 'none';
-        document.getElementById('sq-task').textContent = '这一刻 你选择了自己。';
-        undoBtn.style.display = 'block';
-        undoBtn.disabled = false;
-        undoBtn.onclick = function() {
-            clearTimeout(window._sqNextTimer);
-            undoLastCompletion();
-            undoBtn.style.display = 'none';
+
+        refreshBtn.onclick = function() {
+            if (window.AudioManager) window.AudioManager.playClick();
             showSideQuestCard();
         };
-        clearTimeout(window._sqNextTimer);
-        window._sqNextTimer = setTimeout(function() {
-            undoBtn.style.display = 'none';
+        doBtn.onclick = function() {
+            if (window.AudioManager) window.AudioManager.playClick();
+            card.classList.add('expanded');
+            card.scrollIntoView({ block: 'nearest' });
+            refreshBtn.style.display = 'none';
+            doBtn.style.display = 'none';
+            skipBtn.style.display = 'block';
+            confirmBtn.style.display = 'block';
+            confirmBtn.disabled = false;
+        };
+        skipBtn.onclick = function() {
+            if (window.AudioManager) window.AudioManager.playClick();
             showSideQuestCard();
-        }, 1400);
-    };
+        };
+        confirmBtn.onclick = function() {
+            if (confirmBtn.disabled) return;
+            confirmBtn.disabled = true;
+            window._lastCompletedEntry = addToHistory(rec, 'side');
+            document.getElementById('sq-details').style.display = 'none';
+            card.classList.remove('expanded');
+            skipBtn.style.display = 'none';
+            confirmBtn.style.display = 'none';
+            document.getElementById('sq-task').textContent = '这一刻 你选择了自己。';
+            undoBtn.style.display = 'block';
+            undoBtn.disabled = false;
+            if (window.AudioManager) window.AudioManager.playComplete();
+            undoBtn.onclick = function() {
+                clearTimeout(window._sqNextTimer);
+                undoLastCompletion();
+                undoBtn.style.display = 'none';
+                showSideQuestCard();
+            };
+            clearTimeout(window._sqNextTimer);
+            window._sqNextTimer = setTimeout(function() {
+                undoBtn.style.display = 'none';
+                showSideQuestCard();
+            }, 1500);
+        };
+    }
+
+    if (card.classList.contains('switching')) {
+        fill();
+        return;
+    }
+    card.classList.add('switching');
+    setTimeout(function() {
+        fill();
+        card.classList.remove('switching');
+    }, 220);
 }
 
 function renderSqInlineDetails(details) {
-    var box = document.getElementById('sq-details');
     var list = document.getElementById('sq-details-list');
     if (!details || details.length === 0) {
-        box.style.display = 'none';
+        list.innerHTML = '';
         return;
     }
     list.innerHTML = details.map(function(d) { return '<li>' + d + '</li>'; }).join('');
-    box.style.display = 'block';
 }
 
 window.addEventListener('popstate', function(e) {
@@ -1158,13 +1182,31 @@ window.addEventListener('DOMContentLoaded', function() {
         document.getElementById('main').classList.add('show');
     }, 300 + 1100 + 1400);
 
-    document.getElementById('quests-entry').addEventListener('click', showQuests);
+    document.getElementById('quests-entry').addEventListener('click', function() {
+        if (window.AudioManager) window.AudioManager.playClick();
+        showQuests();
+    });
     document.getElementById('side-entry').addEventListener('click', function() {
-        window.navigateToSideQuest();
+        if (window.AudioManager) window.AudioManager.playClick();
+        if (window.BLINDS && window.BLINDS.quickEnterSideQuest) {
+            window.BLINDS.quickEnterSideQuest();
+        } else {
+            window.navigateToSideQuest();
+        }
+    });
+    document.getElementById('sq-card').addEventListener('click', function(e) {
+        if (e.target && e.target.closest && e.target.closest('.sq-btn, .feedback-undo, .sq-back')) return;
+        this.classList.toggle('expanded');
     });
     document.getElementById('close-detail').addEventListener('click', hideDetails);
-    document.getElementById('history-link').addEventListener('click', showHistory);
-    document.getElementById('settings-link').addEventListener('click', showSettings);
+    document.getElementById('history-link').addEventListener('click', function() {
+        if (window.AudioManager) window.AudioManager.playClick();
+        showHistory();
+    });
+    document.getElementById('settings-link').addEventListener('click', function() {
+        if (window.AudioManager) window.AudioManager.playClick();
+        showSettings();
+    });
     document.getElementById('history-home-back').addEventListener('click', hideHistory);
     document.getElementById('day-back').addEventListener('click', hideDayRecords);
     document.getElementById('prev-week').addEventListener('click', function() {

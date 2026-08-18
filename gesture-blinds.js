@@ -1,7 +1,7 @@
 var BLINDS = (function() {
     var MAX_DIST = 250;
     var THRESHOLD = 0.5;
-    var SETTLE_MS = 340;
+    var SETTLE_MS = 700;
 
     var progress = 0;
     var tracking = false;
@@ -82,6 +82,14 @@ var BLINDS = (function() {
     function enterSideQuest() {
         document.body.classList.remove('side-quest-entering');
         document.body.classList.add('side-quest-open');
+        if (window.AudioManager) window.AudioManager.playBlindOpen();
+        if (window.onSideQuestOpen) window.onSideQuestOpen();
+    }
+
+    function quickEnterSideQuest() {
+        if (isEnteringOrOpen()) return;
+        document.body.classList.add('side-quest-open');
+        if (window.AudioManager) window.AudioManager.playBlindOpen();
         if (window.onSideQuestOpen) window.onSideQuestOpen();
     }
 
@@ -116,7 +124,9 @@ var BLINDS = (function() {
         init: init,
         getProgress: function() { return progress; },
         navigateToSideQuest: navigateToSideQuest,
-        navigateToMainQuest: navigateToMainQuest
+        quickEnterSideQuest: quickEnterSideQuest,
+        navigateToMainQuest: navigateToMainQuest,
+        isEnteringOrOpen: isEnteringOrOpen
     };
 })();
 

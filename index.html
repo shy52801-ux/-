@@ -40,8 +40,12 @@
     </div>
 
     <div id="main">
+        <div class="home-top">
+            <div class="home-brand">微仰</div>
+            <div class="home-tagline">把视线，往上抬一点</div>
+        </div>
         <div class="home-entries">
-            <button class="home-entry" id="quests-entry">
+            <button class="home-entry home-entry-main" id="quests-entry">
                 <span class="home-entry-title">主线</span>
                 <span class="home-entry-sub">有一件事，你真的想完成</span>
             </button>
@@ -50,9 +54,11 @@
                 <span class="home-entry-sub">今天，也可以做一点别的</span>
             </button>
         </div>
-        <div class="home-links">
-            <button class="history-link" id="history-link">记录</button>
-            <button class="history-link" id="settings-link">设置</button>
+        <div class="home-bottom">
+            <div class="home-links">
+                <button class="history-link" id="history-link">记录</button>
+                <button class="history-link" id="settings-link">设置</button>
+            </div>
         </div>
     </div>
 
@@ -64,9 +70,11 @@
                 <div class="sq-card" id="sq-card">
                     <div class="sq-cat" id="sq-cat"></div>
                     <div class="sq-task" id="sq-task"></div>
-                    <div id="sq-details" class="sq-details" style="display:none">
-                        <div class="sq-details-title">具体步骤</div>
-                        <ol class="sq-details-list" id="sq-details-list"></ol>
+                    <div id="sq-details" class="sq-details">
+                        <div class="sq-details-box">
+                            <div class="sq-details-title">具体步骤</div>
+                            <ol class="sq-details-list" id="sq-details-list"></ol>
+                        </div>
                     </div>
                     <div class="sq-actions">
                         <button class="sq-btn secondary" id="sq-refresh">换一个</button>
@@ -143,7 +151,7 @@
         <div id="blind-glow"></div>
     </div>
 
-    <div class="bind-hint">上滑 进入支线</div>
+    <div class="bind-hint"><span class="bind-arrow">↑</span><span class="bind-text">上滑，探索支线</span></div>
 
     <div id="card-container">
         <div class="card">
@@ -220,6 +228,7 @@
     <script src="data.js"></script>
     <script src="quests-data.js"></script>
     <script src="mainTaskGenerator.js"></script>
+    <script src="audioManager.js"></script>
     <script src="app.js"></script>
     <script src="gesture-blinds.js"></script>
     <script>
