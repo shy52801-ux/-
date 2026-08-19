@@ -1051,7 +1051,12 @@ function hideNudge() {
 var sqCurrentRec = null;
 
 function showSideQuestCard() {
+    if (window.console) console.log('[SideQuest] showSideQuestCard called');
     var card = document.getElementById('sq-card');
+
+    setTimeout(function() {
+        if (window.console) console.log('sq-card:', document.querySelector('.sq-card'));
+    }, 100);
 
     function fill() {
         var rec = getRecommendation();
@@ -1263,13 +1268,29 @@ window.addEventListener('DOMContentLoaded', function() {
         renderDayRecords();
     });
     window.onSideQuestOpen = showSideQuestCard;
+    if (window.console) console.log('[SideQuest] onSideQuestOpen registered');
     initThemeSwitching();
     checkNudge();
 });
 
+window.debugSide = function() {
+    if (window.console) {
+        console.log({
+            view: window.currentView,
+            handler: window.onSideQuestOpen,
+            card: document.querySelector('.sq-card')
+        });
+    }
+};
+
 function initThemeSwitching() {
     var THEME_KEY = 'theme';
     var themeLinks = document.querySelectorAll('link[data-theme]');
+    var THEME_BG = {
+        'theme-morning': '#F8F4EA',
+        'theme-forest': '#E9EFE3',
+        'theme-night': '#101216'
+    };
 
     function applyTheme(name) {
         for (var i = 0; i < themeLinks.length; i++) {
@@ -1281,6 +1302,12 @@ function initThemeSwitching() {
             rows[j].classList.toggle('selected', isActive);
             var badge = rows[j].querySelector('.theme-badge');
             if (badge) badge.textContent = isActive ? '当前' : '';
+        }
+        var bg = THEME_BG[name] || '#F8F4EA';
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', bg);
+        if (window.AndroidBridge && window.AndroidBridge.setStatusBarColor) {
+            try { window.AndroidBridge.setStatusBarColor(bg); } catch (e) {}
         }
     }
 
